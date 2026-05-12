@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SR006 | Brand Lab Registry</title>
+    <title>SR006 | Dynamic Brand Lab</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,8 +15,8 @@
 
     <style>
         :root {
-            --bg-dark: #030000;
-            --bg-red: #3a0005;
+            --bg-dark: #020000;
+            --bg-red: #2a0005;
             --text: #f5f5f5;
             --accent: #ff2a2a;
             --mono: 'IBM Plex Mono', monospace;
@@ -33,19 +33,19 @@
             -webkit-font-smoothing: antialiased; 
         }
 
-        /* Red/Black Gradient Background */
+        /* Ambient Red/Black Gradient Background */
         .bg-gradient {
             position: fixed;
             inset: 0;
-            background: radial-gradient(circle at 50% 50%, var(--bg-red) 0%, var(--bg-dark) 80%);
+            background: radial-gradient(ellipse at 50% 40%, var(--bg-red) 0%, var(--bg-dark) 70%);
             z-index: 0;
         }
 
-        /* Subtle noise texture for premium feel */
+        /* Cinematic Noise Texture */
         .noise-overlay {
             position: fixed;
             inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
             z-index: 1;
             pointer-events: none;
         }
@@ -61,7 +61,6 @@
             mix-blend-mode: screen;
         }
 
-        /* Navigation */
         nav {
             position: fixed;
             top: 0;
@@ -76,14 +75,13 @@
             text-transform: uppercase;
             letter-spacing: 0.15em;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(0, 0, 0, 0.2);
+            background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
         }
 
         nav .nav-center { text-align: center; color: var(--accent); font-weight: 600; }
         nav .nav-right { text-align: right; }
 
-        /* Content Sections */
         .content {
             position: relative;
             z-index: 10;
@@ -101,6 +99,7 @@
             justify-content: center;
             align-items: center;
             text-align: center;
+            height: 100vh;
         }
 
         .hero h1 {
@@ -117,7 +116,6 @@
             -webkit-text-stroke: 1px rgba(255, 255, 255, 0.8);
         }
 
-        /* Grid Layout for Cars */
         .car-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -126,24 +124,22 @@
             width: 100%;
             max-width: 1400px;
             margin: 0 auto;
+            min-height: 120vh; /* Extra height for smooth scrolling */
         }
 
-        /* Alternating Alignment */
-        .car-section:nth-child(even) .car-info-wrapper {
-            grid-column: 2;
-        }
-        .car-section:nth-child(odd) .car-info-wrapper {
-            grid-column: 1;
-        }
+        .car-section:nth-child(even) .car-info-wrapper { grid-column: 2; }
+        .car-section:nth-child(odd) .car-info-wrapper { grid-column: 1; }
 
         .car-info {
             max-width: 500px;
             padding: 3rem;
-            background: rgba(10, 0, 0, 0.4);
-            border: 1px solid rgba(255, 42, 42, 0.1);
-            backdrop-filter: blur(12px);
+            background: rgba(5, 0, 0, 0.6);
+            border: 1px solid rgba(255, 42, 42, 0.15);
+            backdrop-filter: blur(16px);
             border-radius: 4px;
-            transform-origin: center center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            opacity: 0; /* For GSAP Fade */
+            transform: translateY(50px);
         }
 
         .car-number {
@@ -187,14 +183,14 @@
         }
 
         .cta-footer {
-            min-height: 60vh;
+            min-height: 80vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
             border-top: 1px solid rgba(255, 42, 42, 0.2);
-            background: radial-gradient(circle at top, rgba(58, 0, 5, 0.8) 0%, transparent 70%);
+            background: radial-gradient(circle at top, rgba(100, 0, 5, 0.6) 0%, transparent 70%);
         }
 
         .buy-btn {
@@ -218,26 +214,7 @@
             background: transparent;
             color: var(--accent);
             transform: scale(1.05);
-            box-shadow: 0 0 30px rgba(255, 42, 42, 0.3);
-        }
-
-        /* Scroll Progress Indicator */
-        #progress-bar {
-            position: fixed;
-            right: 2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            height: 300px;
-            width: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            z-index: 100;
-        }
-
-        #progress-inner {
-            width: 3px;
-            height: 0%;
-            background: var(--accent);
-            transform: translateX(-1px);
+            box-shadow: 0 0 40px rgba(255, 42, 42, 0.4);
         }
 
         @media (max-width: 900px) {
@@ -247,7 +224,6 @@
             nav { grid-template-columns: 1fr 1fr; padding: 1.5rem; }
             nav .nav-center { display: none; }
             .car-info { padding: 2rem; }
-            #progress-bar { display: none; }
         }
     </style>
 </head>
@@ -256,23 +232,23 @@
     <div class="bg-gradient"></div>
     <div class="noise-overlay"></div>
     <div id="webgl-container"></div>
-    <div id="progress-bar"><div id="progress-inner"></div></div>
 
     <nav>
         <div>Brand Lab &copy; 2026</div>
-        <div class="nav-center">SYSTEM: 001—010</div>
-        <div class="nav-right" id="active-id">INIT SEQUENCE</div>
+        <div class="nav-center">DYNAMIC REGISTRY</div>
+        <div class="nav-right" id="active-id">INIT</div>
     </nav>
 
     <main class="content">
         <section class="hero">
-            <div style="font-family: var(--mono); color: var(--accent); letter-spacing: 0.2em; font-size: 0.9rem;" class="hero-fade">CLASSIFIED REGISTRY</div>
+            <div style="font-family: var(--mono); color: var(--accent); letter-spacing: 0.2em; font-size: 0.9rem;" class="hero-fade">PROCEDURAL SERIES</div>
             <h1 class="hero-zoom">
-                SPEED<br>
-                <span class="outline-text">DEMONS</span>
+                MORPH<br>
+                <span class="outline-text">DRIVE</span>
             </h1>
         </section>
 
+        <!-- 10 CAR SECTIONS -->
         <div id="catalog"></div>
 
         <section class="cta-footer">
@@ -282,21 +258,23 @@
     </main>
 
     <script>
-        // --- 1. DATA: THE 10 CARS ---
+        // --- 1. DATA & MORPH CONFIGURATIONS ---
+        // 'geom' configures the 3D scale/morphing of the wireframe car
+        // length = chassis length, width = width, spoilerY = spoiler height, wheelScale = wheel size
         const carData = [
-            { id: "001", name: "Crimson-X", price: "$245", scale: "1:18", type: "Hypercar", parts: "342" },
-            { id: "002", name: "Night-Fall", price: "$180", scale: "1:18", type: "Track Spec", parts: "298" },
-            { id: "003", name: "Apex-R", price: "$320", scale: "1:12", type: "Prototype", parts: "510" },
-            { id: "004", name: "Velocity-9", price: "$150", scale: "1:24", type: "Street", parts: "185" },
-            { id: "005", name: "Blood-Line", price: "$290", scale: "1:18", type: "Hypercar", parts: "420" },
-            { id: "006", name: "Iron-Lung", price: "$175", scale: "1:18", type: "Muscle", parts: "255" },
-            { id: "007", name: "Zenith-V", price: "$410", scale: "1:12", type: "Concept", parts: "605" },
-            { id: "008", name: "Pulse-Red", price: "$130", scale: "1:24", type: "Drift", parts: "192" },
-            { id: "009", name: "Vortex-GT", price: "$260", scale: "1:18", type: "Endurance", parts: "318" },
-            { id: "010", name: "Abyss-0", price: "$500", scale: "1:8", type: "Halo", parts: "890" }
+            { id: "001", name: "Crimson-X", price: "$245", type: "Hypercar", color: "#ff2a2a", geom: { length: 1, width: 1, spoilerY: 0.8, wheelScale: 1 } },
+            { id: "002", name: "Night-Fall", price: "$180", type: "Track Spec", color: "#473DFE", geom: { length: 1.1, width: 1.2, spoilerY: 1.2, wheelScale: 1.1 } },
+            { id: "003", name: "Apex-R", price: "$320", type: "Prototype", color: "#00FF88", geom: { length: 1.3, width: 0.9, spoilerY: 0.5, wheelScale: 0.9 } },
+            { id: "004", name: "Velocity-9", price: "$150", type: "Street", color: "#FFD700", geom: { length: 0.9, width: 1.1, spoilerY: 0.9, wheelScale: 1.2 } },
+            { id: "005", name: "Blood-Line", price: "$290", type: "Hypercar", color: "#ff0055", geom: { length: 1.15, width: 1.05, spoilerY: 1.1, wheelScale: 1.05 } },
+            { id: "006", name: "Iron-Lung", price: "$175", type: "Muscle", color: "#aaaaaa", geom: { length: 1.0, width: 1.3, spoilerY: 0.6, wheelScale: 1.3 } },
+            { id: "007", name: "Zenith-V", price: "$410", type: "Concept", color: "#00E5FF", geom: { length: 1.4, width: 0.8, spoilerY: 0.4, wheelScale: 0.8 } },
+            { id: "008", name: "Pulse-Red", price: "$130", type: "Drift", color: "#8844FF", geom: { length: 0.95, width: 1.25, spoilerY: 1.4, wheelScale: 1.1 } },
+            { id: "009", name: "Vortex-GT", price: "$260", type: "Endurance", color: "#FFAA00", geom: { length: 1.25, width: 1.15, spoilerY: 0.9, wheelScale: 1 } },
+            { id: "010", name: "Abyss-0", price: "$500", type: "Halo", color: "#ffffff", geom: { length: 1.5, width: 1.4, spoilerY: 1.5, wheelScale: 1.4 } }
         ];
 
-        // --- 2. DYNAMIC UI INJECTION ---
+        // --- 2. GENERATE UI ---
         const catalog = document.getElementById('catalog');
         carData.forEach(car => {
             const section = document.createElement('section');
@@ -308,10 +286,10 @@
                         <span class="car-number">MODEL // ${car.id}</span>
                         <h2 class="car-title">${car.name}</h2>
                         <div class="car-meta">
-                            <div class="meta-row"><span>Unit Price</span><span>${car.price}</span></div>
                             <div class="meta-row"><span>Classification</span><span>${car.type}</span></div>
-                            <div class="meta-row"><span>Technical Scale</span><span>${car.scale}</span></div>
-                            <div class="meta-row"><span>Component Count</span><span>${car.parts}</span></div>
+                            <div class="meta-row"><span>Unit Price</span><span>${car.price}</span></div>
+                            <div class="meta-row"><span>Chassis Config</span><span>Dynamic Morph</span></div>
+                            <div class="meta-row"><span>Core Hue</span><span style="color:${car.color}">${car.color.toUpperCase()}</span></div>
                         </div>
                     </div>
                 </div>
@@ -321,8 +299,7 @@
 
         // --- 3. THREE.JS SCENE SETUP ---
         const scene = new THREE.Scene();
-        // Adjust fog to match the red/black background
-        scene.fog = new THREE.FogExp2(0x1a0000, 0.04);
+        scene.fog = new THREE.FogExp2(0x1a0000, 0.03);
 
         const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 0, 15);
@@ -333,32 +310,28 @@
         document.getElementById('webgl-container').appendChild(renderer.domElement);
 
         // Lighting
-        const light = new THREE.PointLight(0xff2a2a, 2, 50);
-        light.position.set(5, 5, 5);
-        scene.add(light);
-        
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-        scene.add(ambientLight);
+        const mainLight = new THREE.PointLight(0xffffff, 1.5, 50);
+        mainLight.position.set(5, 5, 5);
+        scene.add(mainLight);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.2));
 
-        // Procedural Wireframe Car
-        const carGroup = new THREE.Group();
+        // Procedural Car Rig
+        const carRig = new THREE.Group();
+        const carGroup = new THREE.Group(); // Inner group for local rotation
+        carRig.add(carGroup);
+        scene.add(carRig);
         
-        // Bright white/silver wireframe looks incredible against dark red
         const wireframeMat = new THREE.MeshBasicMaterial({ 
             color: 0xffffff, 
             wireframe: true, 
             transparent: true, 
-            opacity: 0.15 
+            opacity: 0.2 
         });
         
-        // Core Chassis
+        // Car Parts (Accessible for Morphing)
         const mainBody = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.5, 2.2), wireframeMat);
-        // Cabin
-        const cabinGeo = new THREE.CylinderGeometry(0.8, 1.2, 2, 4);
-        cabinGeo.rotateZ(Math.PI / 2);
-        const cabin = new THREE.Mesh(cabinGeo, wireframeMat);
+        const cabin = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.2, 2, 4).rotateZ(Math.PI / 2), wireframeMat);
         cabin.position.set(-0.2, 0.8, 0);
-        // Spoiler
         const spoiler = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 2.2), wireframeMat);
         spoiler.position.set(2, 0.8, 0);
 
@@ -367,7 +340,8 @@
         // Wheels
         const wheelGeo = new THREE.TorusGeometry(0.4, 0.15, 8, 16);
         const wheels = [];
-        [[-1.5, -0.2, 1.2], [1.5, -0.2, 1.2], [-1.5, -0.2, -1.2], [1.5, -0.2, -1.2]].forEach(pos => {
+        const baseWheelPositions = [[-1.5, -0.2, 1.2], [1.5, -0.2, 1.2], [-1.5, -0.2, -1.2], [1.5, -0.2, -1.2]];
+        baseWheelPositions.forEach(pos => {
             const wheel = new THREE.Mesh(wheelGeo, wireframeMat);
             wheel.position.set(...pos);
             wheel.rotation.x = Math.PI / 2;
@@ -375,108 +349,128 @@
             wheels.push(wheel);
         });
 
-        // Add a glowing core inside the car
-        const coreGeo = new THREE.BoxGeometry(2, 0.2, 1);
+        // Glowing Core
         const coreMat = new THREE.MeshBasicMaterial({ color: 0xff2a2a, transparent: true, opacity: 0.8 });
-        const core = new THREE.Mesh(coreGeo, coreMat);
+        const core = new THREE.Mesh(new THREE.BoxGeometry(2, 0.2, 1), coreMat);
         carGroup.add(core);
 
-        scene.add(carGroup);
-
-        // --- 4. GSAP ANIMATIONS (ZOOMS & ALIGNMENT) ---
+        // --- 4. MASTER CINEMATIC GSAP TIMELINE ---
         gsap.registerPlugin(ScrollTrigger);
 
-        // Hero Load Animation (Zoom out effect)
+        // Intro Hero Animations
         gsap.fromTo(".hero-zoom", 
-            { scale: 1.5, opacity: 0 }, 
-            { scale: 1, opacity: 1, duration: 1.5, stagger: 0.2, ease: "expo.out" }
+            { scale: 1.3, opacity: 0 }, 
+            { scale: 1, opacity: 1, duration: 1.5, stagger: 0.2, ease: "power3.out", delay: 0.2 }
         );
         gsap.fromTo(".hero-fade", 
             { y: 30, opacity: 0 }, 
-            { y: 0, opacity: 1, duration: 1, delay: 0.5, ease: "power2.out" }
+            { y: 0, opacity: 1, duration: 1, delay: 0.8, ease: "power2.out" }
         );
 
-        // Hero scroll away (Zoom car in)
-        gsap.to(carGroup.position, {
-            z: 8, // Zoom towards camera
-            rotationX: 0.5,
-            scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: 1 }
-        });
-
-        // Loop through each car section for dramatic zoom-in UI animations
-        carData.forEach((car, i) => {
-            const section = document.getElementById(`section-${car.id}`);
-            const infoBox = section.querySelector('.car-info');
-            const isEven = i % 2 === 0;
-
-            // HTML Element Zoom In
-            gsap.fromTo(infoBox,
-                { scale: 0.8, opacity: 0, y: 100 },
-                { 
-                    scale: 1, 
-                    opacity: 1, 
-                    y: 0, 
-                    duration: 1, 
-                    ease: "back.out(1.2)",
-                    scrollTrigger: {
-                        trigger: section,
-                        start: "top 75%",
-                        end: "center center",
-                        toggleActions: "play none none reverse"
-                    }
-                }
-            );
-
-            // 3D Car Zoom & Swoop Sync
-            const tl = gsap.timeline({
+        // Reveal UI Cards on Scroll
+        gsap.utils.toArray('.car-info').forEach(box => {
+            gsap.to(box, {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: "back.out(1)",
                 scrollTrigger: {
-                    trigger: section,
-                    start: "top bottom",
-                    end: "bottom top",
-                    scrub: 1.5,
-                    onEnter: () => document.getElementById('active-id').innerText = `TARGET: ${car.id}`,
-                    onEnterBack: () => document.getElementById('active-id').innerText = `TARGET: ${car.id}`
+                    trigger: box,
+                    start: "top 80%",
                 }
             });
-
-            // The car swoops from side to side and zooms in/out
-            const targetX = isEven ? -4 : 4; // Move opposite of the UI box
-            
-            tl.fromTo(carGroup.position, 
-                { z: -5 }, // Start zoomed out
-                { x: targetX, z: 4, duration: 0.5, ease: "power1.inOut" } // Zoom in
-            );
-            tl.to(carGroup.position, { z: -5, duration: 0.5, ease: "power1.inOut" }); // Zoom back out as it leaves
-            
-            // Continuous rotation flip
-            tl.to(carGroup.rotation, { y: carGroup.rotation.y + Math.PI, duration: 1 }, 0);
         });
 
-        // Progress Bar Fill
-        gsap.to("#progress-inner", {
-            height: "100%",
-            ease: "none",
+        // Setup the Master WebGL Timeline tied to the entire Catalog
+        const masterTl = gsap.timeline({
             scrollTrigger: {
-                trigger: document.body,
-                start: "top top",
-                end: "bottom bottom",
-                scrub: 0.1
+                trigger: "#catalog",
+                start: "top bottom", // Starts when catalog enters screen
+                end: "bottom bottom", // Ends when catalog hits bottom
+                scrub: 1 // Smooth scrubbing
             }
         });
+
+        // Hero exit: Car zooms in from far back
+        carRig.position.set(0, 0, -10);
+        carGroup.rotation.set(0.5, 0, 0);
+
+        // Calculate progress steps based on 10 cars
+        const step = 1 / carData.length;
+
+        carData.forEach((car, i) => {
+            const isEven = i % 2 === 0;
+            const targetX = isEven ? -4 : 4; // Drift left or right
+            const targetRotY = isEven ? Math.PI * 0.8 : Math.PI * 1.2; // Dramatic angles
+            
+            const segmentTl = gsap.timeline();
+
+            // 1. Move & Spin the Car Rig
+            segmentTl.to(carRig.position, { 
+                x: targetX, 
+                z: 3, // Zoom in close to the text
+                y: Math.sin(i) * 0.5, // Slight elevation change
+                ease: "power1.inOut" 
+            }, 0);
+
+            segmentTl.to(carGroup.rotation, { 
+                y: targetRotY + (i * Math.PI), // Continuous spin combined with angle
+                x: 0.2,
+                ease: "power1.inOut" 
+            }, 0);
+
+            // 2. Morph the Geometry (The "Different Cars" effect)
+            segmentTl.to(mainBody.scale, { x: car.geom.length, z: car.geom.width, ease: "power2.inOut" }, 0);
+            segmentTl.to(cabin.scale, { x: car.geom.length, z: car.geom.width, ease: "power2.inOut" }, 0);
+            segmentTl.to(spoiler.scale, { x: car.geom.width, ease: "power2.inOut" }, 0);
+            segmentTl.to(spoiler.position, { y: car.geom.spoilerY, x: 2 * car.geom.length, ease: "power2.inOut" }, 0);
+            
+            // Adjust wheels
+            wheels.forEach((w, wIdx) => {
+                const base = baseWheelPositions[wIdx];
+                segmentTl.to(w.scale, { x: car.geom.wheelScale, y: car.geom.wheelScale, z: car.geom.wheelScale, ease: "power2.inOut" }, 0);
+                segmentTl.to(w.position, { x: base[0] * car.geom.length, z: base[2] * car.geom.width, ease: "power2.inOut" }, 0);
+            });
+
+            // 3. Change Colors (Using GSAP ColorPropsPlugin implicitly)
+            segmentTl.to(coreMat.color, { 
+                r: new THREE.Color(car.color).r, 
+                g: new THREE.Color(car.color).g, 
+                b: new THREE.Color(car.color).b, 
+                ease: "none" 
+            }, 0);
+
+            // Update UI ID via ScrollTrigger on the segment
+            ScrollTrigger.create({
+                trigger: `#section-${car.id}`,
+                start: "top center",
+                end: "bottom center",
+                onEnter: () => document.getElementById('active-id').innerText = `TARGET: ${car.id}`,
+                onEnterBack: () => document.getElementById('active-id').innerText = `TARGET: ${car.id}`
+            });
+
+            // Add this car's segment to the master timeline
+            masterTl.add(segmentTl, i * step);
+        });
+
+        // Final zoom out on the footer
+        masterTl.to(carRig.position, { z: -10, x: 0, y: 0, duration: step }, "-=0");
+        masterTl.to(carGroup.rotation, { y: "+=3.14", x: 0.5, duration: step }, "-=" + step);
+
 
         // --- 5. RENDER LOOP ---
         function animate() {
             requestAnimationFrame(animate);
-            
-            // Subtle idle floating
             const time = Date.now() * 0.001;
-            carGroup.position.y = Math.sin(time) * 0.2;
             
-            // Spin wheels
-            wheels.forEach(w => w.rotation.y -= 0.02);
+            // Idle hover effect
+            carRig.position.y += Math.sin(time * 2) * 0.002;
+            
+            // Constant wheel spin
+            wheels.forEach(w => w.rotation.z -= 0.05);
 
-            // Pulse the red core
-            core.material.opacity = 0.5 + Math.sin(time * 4) * 0.3;
+            // Pulsing core light
+            coreMat.opacity = 0.6 + Math.sin(time * 5) * 0.4;
 
             renderer.render(scene, camera);
         }
