@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SR006 | Dynamic Architecture</title>
+    <title>SR006 | Lab Architecture</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,8 +17,8 @@
 
     <style>
         :root {
-            --bg-dark: #020000;
-            --bg-red: #2a0005;
+            --bg-dark: #050000;
+            --bg-red: #3a0005;
             --text: #f5f5f5;
             --accent: #ff2a2a;
             --mono: 'IBM Plex Mono', monospace;
@@ -35,217 +35,178 @@
             -webkit-font-smoothing: antialiased; 
         }
 
+        /* --- BACKGROUND LAYER --- */
         .bg-gradient {
             position: fixed;
             inset: 0;
-            background: radial-gradient(ellipse at 50% 40%, var(--bg-red) 0%, var(--bg-dark) 70%);
+            background: radial-gradient(ellipse at 50% 50%, var(--bg-red) 0%, var(--bg-dark) 70%);
             z-index: 0;
         }
 
-        .noise-overlay {
+        /* Tech Grid overlay */
+        .bg-grid {
             position: fixed;
             inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 4vw 4vw;
             z-index: 1;
             pointer-events: none;
         }
 
+        /* --- 3D CANVAS LAYER --- */
         #webgl-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            z-index: 2;
+            z-index: 2; /* Sits exactly between background and content */
             pointer-events: none;
-            mix-blend-mode: screen;
         }
 
-        /* --- CUSTOM CURSOR --- */
-        .cursor-dot, .cursor-ring {
-            position: fixed;
-            top: 0;
-            left: 0;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            z-index: 9999;
-            pointer-events: none;
+        /* --- CONTENT LAYER --- */
+        .content { 
+            position: relative; 
+            z-index: 10; 
         }
-        .cursor-dot { width: 6px; height: 6px; background: white; }
+
+        /* Custom Cursor */
+        .cursor-dot {
+            position: fixed; width: 6px; height: 6px; background: white;
+            border-radius: 50%; z-index: 9999; pointer-events: none; transform: translate(-50%, -50%);
+        }
         .cursor-ring {
-            width: 30px; height: 30px;
-            border: 1px solid rgba(255,255,255,0.5);
-            transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
+            position: fixed; width: 40px; height: 40px; border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 50%; z-index: 9999; pointer-events: none; transform: translate(-50%, -50%);
+            transition: width 0.3s, height 0.3s, border-color 0.3s, background 0.3s;
         }
         .cursor-ring.active {
-            width: 60px; height: 60px;
-            border-color: var(--accent);
-            background: rgba(255, 42, 42, 0.1);
-            backdrop-filter: blur(2px);
+            width: 70px; height: 70px; border-color: var(--accent); background: rgba(255, 42, 42, 0.1);
         }
 
         nav {
-            position: fixed;
-            top: 0; width: 100%;
-            padding: 2rem 3rem;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-            z-index: 100;
-            font-family: var(--mono);
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(0, 0, 0, 0.2);
-            backdrop-filter: blur(10px);
+            position: fixed; top: 0; width: 100%; padding: 2rem 4vw;
+            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+            z-index: 100; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase;
+            letter-spacing: 0.15em; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(5, 0, 0, 0.5); backdrop-filter: blur(10px);
         }
         nav .nav-center { text-align: center; color: var(--accent); font-weight: 600; }
         nav .nav-right { text-align: right; }
 
-        .content { position: relative; z-index: 10; }
-
         .hero {
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
+            height: 100vh; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; text-align: center;
         }
         .hero h1 {
-            font-size: clamp(3.5rem, 14vw, 14rem);
-            font-weight: 900;
-            line-height: 0.85;
-            letter-spacing: -0.05em;
-            text-transform: uppercase;
+            font-size: clamp(4rem, 14vw, 14rem); font-weight: 900; line-height: 0.85;
+            letter-spacing: -0.05em; text-transform: uppercase; margin-top: 1rem;
         }
         .hero .outline-text { color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, 0.8); }
 
-        .catalog { max-width: 1600px; margin: 0 auto; padding: 10vh 5vw; }
+        /* --- STRICT GRID LAYOUT TO PREVENT OVERLAP --- */
+        .catalog {
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 5vh 4vw;
+            display: flex;
+            flex-direction: column;
+            gap: 15vh; /* Massive spacing for smooth scroll feeling */
+        }
 
         .category-section {
-            min-height: 100vh;
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Strict 50/50 split */
+            gap: 4vw;
             align-items: center;
+            min-height: 90vh;
             width: 100%;
-            margin-bottom: 10vh;
         }
-        .category-section:nth-child(odd) { justify-content: flex-start; }
-        .category-section:nth-child(even) { justify-content: flex-end; }
+
+        /* Force cards into their respective columns */
+        .category-section:nth-child(odd) .card-wrapper { grid-column: 1; justify-self: start; }
+        .category-section:nth-child(even) .card-wrapper { grid-column: 2; justify-self: end; }
 
         .card-wrapper {
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
             perspective: 1200px;
         }
 
         .category-card {
-            padding: 4rem 3rem;
-            background: rgba(10, 0, 0, 0.6);
+            padding: 3.5rem;
+            background: rgba(5, 0, 0, 0.7);
             border: 1px solid rgba(255, 42, 42, 0.2);
             backdrop-filter: blur(16px);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.6);
             transform-style: preserve-3d;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
             will-change: transform;
         }
 
         .category-section:nth-child(odd) .category-card { border-left: 3px solid var(--accent); }
         .category-section:nth-child(even) .category-card { border-right: 3px solid var(--accent); text-align: right; }
 
+        /* Inner Parallax */
         .category-card > * { transform: translateZ(30px); }
 
         .category-id {
-            font-family: var(--mono);
-            color: var(--accent);
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: block;
-            letter-spacing: 0.1em;
+            font-family: var(--mono); color: var(--accent); font-size: 0.9rem;
+            font-weight: 600; margin-bottom: 1rem; display: block; letter-spacing: 0.1em;
         }
 
         .category-title {
-            font-size: clamp(2.5rem, 4vw, 4rem);
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            line-height: 1;
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
+            font-size: clamp(2rem, 4vw, 4rem); font-weight: 800; letter-spacing: -0.04em;
+            line-height: 1; margin-bottom: 1.5rem; text-transform: uppercase;
         }
         
         .category-desc {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: #aaa;
-            margin-bottom: 2.5rem;
-            transform: translateZ(20px);
+            font-size: 1.1rem; line-height: 1.6; color: #aaa; margin-bottom: 2.5rem;
         }
 
         .explore-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 1rem;
-            background: transparent;
-            color: var(--text);
-            padding: 1rem 0;
-            text-decoration: none;
-            font-family: var(--mono);
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            border-bottom: 1px solid var(--accent);
-            transition: all 0.3s ease;
-            transform: translateZ(40px);
+            display: inline-flex; align-items: center; gap: 1rem; background: transparent;
+            color: var(--text); padding: 1rem 0; text-decoration: none; font-family: var(--mono);
+            font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em;
+            border-bottom: 1px solid var(--accent); transition: all 0.3s ease;
         }
         .explore-btn:hover { gap: 1.5rem; color: var(--accent); }
 
         .cta-footer {
-            height: 70vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            border-top: 1px solid rgba(255, 42, 42, 0.2);
-            background: radial-gradient(circle at top, rgba(100, 0, 5, 0.6) 0%, transparent 70%);
-            position: relative;
-            z-index: 20; 
+            height: 100vh; display: flex; flex-direction: column; justify-content: center;
+            align-items: center; text-align: center; border-top: 1px solid rgba(255, 42, 42, 0.2);
+            background: radial-gradient(circle at top, rgba(100, 0, 5, 0.8) 0%, var(--bg-dark) 70%);
+            position: relative; z-index: 20;
         }
 
         #progress-bar {
-            position: fixed;
-            right: 2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            height: 300px;
-            width: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            z-index: 100;
+            position: fixed; right: 2rem; top: 50%; transform: translateY(-50%);
+            height: 30vh; width: 1px; background: rgba(255, 255, 255, 0.15); z-index: 100;
         }
-
         #progress-inner {
-            width: 3px; height: 0%;
-            background: var(--accent);
-            transform: translateX(-1px);
+            width: 3px; height: 0%; background: var(--accent); transform: translateX(-1px);
         }
 
         @media (max-width: 1024px) {
-            .category-section { justify-content: center !important; }
-            .category-section:nth-child(odd) .category-card,
-            .category-section:nth-child(even) .category-card {
+            .category-section { grid-template-columns: 1fr; align-items: end; padding-bottom: 10vh; }
+            .category-section:nth-child(odd) .card-wrapper, .category-section:nth-child(even) .card-wrapper { grid-column: 1; justify-self: center; }
+            .category-section:nth-child(odd) .category-card, .category-section:nth-child(even) .category-card {
                 text-align: center; border-left: none; border-right: none; border-top: 3px solid var(--accent);
             }
             .cursor-dot, .cursor-ring { display: none; }
             * { cursor: auto !important; }
+            #progress-bar { display: none; }
+            nav .nav-center { display: none; }
+            nav { grid-template-columns: 1fr 1fr; }
         }
     </style>
 </head>
 <body>
 
     <div class="bg-gradient"></div>
-    <div class="noise-overlay"></div>
+    <div class="bg-grid"></div>
     <div id="webgl-container"></div>
 
     <div class="cursor-dot"></div>
@@ -273,8 +234,8 @@
         </div>
 
         <section class="cta-footer">
-            <h2 class="hero-zoom" style="font-size: clamp(3rem, 8vw, 6rem); font-weight: 900; line-height: 1; text-transform: uppercase; letter-spacing: -0.04em;">VIEW FULL<br> REGISTRY</h2>
-            <a href="#" class="explore-btn hover-target" style="margin-top: 2rem; border: 1px solid var(--accent); padding: 1rem 3rem;">Access Portal</a>
+            <h2 class="hero-zoom" style="font-size: clamp(3rem, 10vw, 8rem); font-weight: 900; line-height: 1; text-transform: uppercase; letter-spacing: -0.04em;">VIEW FULL<br> REGISTRY</h2>
+            <a href="#" class="explore-btn hover-target" style="margin-top: 3rem; border: 1px solid var(--accent); padding: 1.5rem 4rem;">Access Portal</a>
         </section>
     </main>
 
@@ -295,7 +256,7 @@
             section.id = `section-${index}`;
             
             section.innerHTML = `
-                <div class="card-wrapper scroll-target">
+                <div class="card-wrapper">
                     <div class="category-card interactive-card">
                         <span class="category-id">SERIES // ${cat.id}</span>
                         <h2 class="category-title" style="color: ${cat.color}">${cat.title}</h2>
@@ -316,14 +277,14 @@
         const xRingTo = gsap.quickTo(ring, "x", {duration: 0.3, ease: "power3"});
         const yRingTo = gsap.quickTo(ring, "y", {duration: 0.3, ease: "power3"});
 
-        let mouseX = 0; let mouseY = 0;
-        let normX = 0; let normY = 0;
+        let mouseX = 0, mouseY = 0;
+        let normX = 0, normY = 0;
 
         window.addEventListener("mousemove", (e) => {
             xDotTo(e.clientX); yDotTo(e.clientY);
             xRingTo(e.clientX); yRingTo(e.clientY);
             
-            // Normalized coords for 3D car rotation (-1 to 1)
+            mouseX = e.clientX; mouseY = e.clientY;
             normX = (e.clientX / window.innerWidth) * 2 - 1;
             normY = -(e.clientY / window.innerHeight) * 2 + 1;
         });
@@ -339,10 +300,9 @@
                 const x = e.clientX - rect.left - rect.width / 2;
                 const y = e.clientY - rect.top - rect.height / 2;
                 gsap.to(card, {
-                    rotateY: (x / (rect.width / 2)) * 15,
-                    rotateX: (y / (rect.height / 2)) * -15,
-                    duration: 0.5,
-                    ease: "power2.out"
+                    rotateY: (x / (rect.width / 2)) * 12,
+                    rotateX: (y / (rect.height / 2)) * -12,
+                    duration: 0.5, ease: "power2.out"
                 });
             });
             card.addEventListener('mouseleave', () => {
@@ -354,9 +314,9 @@
 
         // --- 4. THREE.JS PROCEDURAL CAR ---
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x1a0000, 0.03);
+        scene.fog = new THREE.FogExp2(0x050000, 0.03);
 
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 100);
+        const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
         camera.position.set(0, 0, 16);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
@@ -364,125 +324,119 @@
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
         document.getElementById('webgl-container').appendChild(renderer.domElement);
 
-        const mainLight = new THREE.PointLight(0xffffff, 1.5, 50);
-        mainLight.position.set(5, 5, 5);
+        const mainLight = new THREE.PointLight(0xffffff, 2, 50);
+        mainLight.position.set(5, 10, 5);
         scene.add(mainLight);
-        scene.add(new THREE.AmbientLight(0xffffff, 0.2));
+        scene.add(new THREE.AmbientLight(0xffffff, 0.3));
 
-        const carRig = new THREE.Group();     // Controlled by GSAP Position & Mouse Rotation
-        const carModel = new THREE.Group();   // Controlled by GSAP Rotation (Spins)
+        const carRig = new THREE.Group(); 
+        const carModel = new THREE.Group(); 
         carRig.add(carModel);
         scene.add(carRig);
         
-        const wireframeMat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.25 });
-        
-        const mainBody = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.5, 2.2), wireframeMat);
-        const cabin = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.2, 2, 4).rotateZ(Math.PI / 2), wireframeMat);
-        cabin.position.set(-0.2, 0.8, 0);
-        const spoiler = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 2.2), wireframeMat);
+        // Premium Materials
+        const metalMat = new THREE.MeshPhysicalMaterial({ color: 0x0f0f0f, metalness: 0.9, roughness: 0.2, clearcoat: 1 });
+        const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.9, opacity: 1, metalness: 0.2, roughness: 0.1, ior: 1.5, thickness: 0.5 });
+        const coreMat = new THREE.MeshBasicMaterial({ color: 0xff2a2a });
+
+        // Geometry
+        const chassis = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.5, 2.2), metalMat);
+        const cabin = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.2, 2, 32).rotateZ(Math.PI / 2), glassMat);
+        cabin.position.set(-0.2, 0.7, 0);
+        const core = new THREE.Mesh(new THREE.BoxGeometry(2, 0.2, 1), coreMat);
+        core.position.set(-0.2, 0.4, 0);
+        const spoiler = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 2.2), metalMat);
         spoiler.position.set(2, 0.8, 0);
 
-        carModel.add(mainBody, cabin, spoiler);
+        carModel.add(chassis, cabin, core, spoiler);
 
-        const wheelGeo = new THREE.TorusGeometry(0.4, 0.15, 8, 16);
+        const wheelGeo = new THREE.CylinderGeometry(0.5, 0.5, 0.4, 32).rotateX(Math.PI / 2);
+        const wheelMat = new THREE.MeshStandardMaterial({ color: 0x020202, roughness: 0.9 });
         const wheels = [];
         const baseWheelPositions = [[-1.5, -0.2, 1.2], [1.5, -0.2, 1.2], [-1.5, -0.2, -1.2], [1.5, -0.2, -1.2]];
+        
         baseWheelPositions.forEach(pos => {
-            const wheel = new THREE.Mesh(wheelGeo, wireframeMat);
-            wheel.position.set(...pos);
-            wheel.rotation.x = Math.PI / 2;
-            carModel.add(wheel);
-            wheels.push(wheel);
+            const w = new THREE.Mesh(wheelGeo, wheelMat);
+            w.position.set(...pos);
+            carModel.add(w);
+            wheels.push(w);
         });
 
-        const coreMat = new THREE.MeshBasicMaterial({ color: 0xff2a2a, transparent: true, opacity: 0.9 });
-        const core = new THREE.Mesh(new THREE.BoxGeometry(2, 0.2, 1), coreMat);
-        carModel.add(core);
+        // --- 5. FRUSTUM MATH (ZERO OVERLAP GUARANTEE) ---
+        let vWidth, vHeight;
+        function calculateViewport() {
+            const vFov = camera.fov * Math.PI / 180;
+            vHeight = 2 * Math.tan(vFov / 2) * camera.position.z;
+            vWidth = vHeight * camera.aspect;
+        }
+        calculateViewport();
 
-        // --- 5. GSAP SCROLL & SYNCHRONIZATION ---
+        // --- 6. GSAP SCROLL: "CAR BRINGING THE CARD" EFFECT ---
         gsap.registerPlugin(ScrollTrigger);
 
         // Intro
         gsap.fromTo(".hero-zoom", { scale: 1.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.5, ease: "power3.out", delay: 0.2 });
         gsap.fromTo(".hero-fade", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1, delay: 0.8, ease: "power2.out" });
 
-        // Scroll Progress Bar
-        gsap.to("#progress-inner", {
-            height: "100%", ease: "none",
-            scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: 0.1 }
-        });
+        gsap.to("#progress-inner", { height: "100%", ease: "none", scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: 0.1 }});
+
+        // Hide car initially
+        carRig.position.set(-20, 0, 0);
+        let accumulatedRotation = 0;
 
         let mm = gsap.matchMedia();
-        let accumulatedRotation = Math.PI * 0.8; // Base rotation
 
-        // DESKTOP LOGIC (The S-Curve Drive & Brought Card Effect)
+        // DESKTOP LOGIC
         mm.add("(min-width: 1025px)", () => {
-            
-            const aspect = window.innerWidth / window.innerHeight;
-
             categoriesData.forEach((cat, i) => {
                 const section = document.getElementById(`section-${i}`);
-                const cardWrap = section.querySelector('.scroll-target');
-                const isLeft = i % 2 === 0;
+                const cardWrap = section.querySelector('.card-wrapper');
+                const isLeftCard = i % 2 === 0;
 
-                const targetCarX = isLeft ? (3.5 * aspect) : -(3.5 * aspect); 
-                const cardStartX = isLeft ? -150 : 150; // Card slides from opposite of car
+                // FRUSTUM MAGIC: Place car exactly in the center of the EMPTY half of the screen
+                const targetCarX = isLeftCard ? (vWidth / 4) : -(vWidth / 4); 
+                // Card slides in from the same side the car is driving towards
+                const cardStartX = isLeftCard ? -100 : 100; 
 
-                if (i === 0) {
-                    // Initial Drive In from Hero
-                    gsap.fromTo(carRig.position, 
-                        { z: -20, x: 0 }, 
-                        { z: 0, x: targetCarX, ease: "power2.out",
-                          scrollTrigger: { trigger: section, start: "top bottom", end: "center center", scrub: 1 } 
-                        }
-                    );
-                    carModel.rotation.y = accumulatedRotation;
-                } else {
-                    // Continuous sweeping arc from previous car
-                    const tl = gsap.timeline({
-                        scrollTrigger: {
-                            trigger: section,
-                            start: "top bottom",
-                            end: "center center",
-                            scrub: 1
-                        }
-                    });
-
-                    // Arc Sweep: Drive across X, curve out to Z and back to 0
-                    tl.to(carRig.position, { x: targetCarX, ease: "power1.inOut" }, 0);
-                    tl.to(carRig.position, { z: 5, duration: 0.5, ease: "power1.out" }, 0);
-                    tl.to(carRig.position, { z: 0, duration: 0.5, ease: "power1.in" }, 0.5);
-
-                    // Continuous Drift Spin
-                    accumulatedRotation += Math.PI; // Add 180 degrees every sweep
-                    tl.to(carModel.rotation, { y: accumulatedRotation, ease: "power1.inOut" }, 0);
-
-                    // Morph Geometry while crossing
-                    tl.to(mainBody.scale, { x: cat.geom.l, z: cat.geom.w }, 0);
-                    tl.to(cabin.scale, { x: cat.geom.l, z: cat.geom.w }, 0);
-                    tl.to(spoiler.scale, { x: cat.geom.w }, 0);
-                    tl.to(spoiler.position, { y: cat.geom.s, x: 2 * cat.geom.l }, 0);
-                    wheels.forEach((w, wIdx) => {
-                        tl.to(w.scale, { x: cat.geom.wh, y: cat.geom.wh, z: cat.geom.wh }, 0);
-                        tl.to(w.position, { x: baseWheelPositions[wIdx][0] * cat.geom.l, z: baseWheelPositions[wIdx][2] * cat.geom.w }, 0);
-                    });
-                    tl.to(coreMat.color, { r: new THREE.Color(cat.color).r, g: new THREE.Color(cat.color).g, b: new THREE.Color(cat.color).b }, 0);
-                }
-
-                // The Card Slide-in (Car brings it)
-                gsap.fromTo(cardWrap,
-                    { x: cardStartX, opacity: 0, scale: 0.95 },
-                    { 
-                        x: 0, opacity: 1, scale: 1, ease: "back.out(1.2)",
-                        scrollTrigger: {
-                            trigger: section,
-                            start: "top 60%", // Triggers slightly after car starts moving
-                            end: "center center",
-                            scrub: 1,
-                            onEnter: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`,
-                            onEnterBack: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`
-                        }
+                const tl = gsap.timeline({
+                    scrollTrigger: {
+                        trigger: section,
+                        start: "top 90%", // Trigger early
+                        end: "center center",
+                        scrub: 1,
+                        invalidateOnRefresh: true, // Recalculates vWidth dynamically on resize
+                        onEnter: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`,
+                        onEnterBack: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`
                     }
+                });
+
+                // Car drives completely across screen to its safe zone
+                // Using a function ensures it recalculates properly on window resize
+                tl.fromTo(carRig.position, 
+                    { x: () => isLeftCard ? -vWidth : vWidth, z: -5 }, 
+                    { x: () => targetCarX, z: 2, ease: "power1.inOut" }, 0
+                );
+                
+                // Spin car dynamically (adds 180deg each time for S-Curve)
+                accumulatedRotation += Math.PI;
+                tl.to(carModel.rotation, { y: accumulatedRotation, ease: "power2.inOut" }, 0);
+
+                // Morph Geometry
+                tl.to(chassis.scale, { x: cat.geom.l, z: cat.geom.w }, 0);
+                tl.to(cabin.scale, { x: cat.geom.l, z: cat.geom.w }, 0);
+                tl.to(spoiler.scale, { x: cat.geom.w }, 0);
+                tl.to(spoiler.position, { y: cat.geom.s, x: 2 * cat.geom.l }, 0);
+                wheels.forEach((w, wIdx) => {
+                    tl.to(w.scale, { x: cat.geom.wh, y: cat.geom.wh, z: cat.geom.wh }, 0);
+                    tl.to(w.position, { x: baseWheelPositions[wIdx][0] * cat.geom.l, z: baseWheelPositions[wIdx][2] * cat.geom.w }, 0);
+                });
+                tl.to(coreMat.color, { r: new THREE.Color(cat.color).r, g: new THREE.Color(cat.color).g, b: new THREE.Color(cat.color).b }, 0);
+                tl.to(metalMat.color, { r: new THREE.Color(cat.color).r * 0.2, g: new THREE.Color(cat.color).g * 0.2, b: new THREE.Color(cat.color).b * 0.2 }, 0); // Tint metal slightly
+
+                // HTML Card sliding in (Syncs with the car)
+                tl.fromTo(cardWrap,
+                    { xPercent: cardStartX, opacity: 0, rotationY: isLeftCard ? -20 : 20 },
+                    { xPercent: 0, opacity: 1, rotationY: 0, ease: "power2.out" }, 0.2
                 );
             });
         });
@@ -491,51 +445,47 @@
         mm.add("(max-width: 1024px)", () => {
             categoriesData.forEach((cat, i) => {
                 const section = document.getElementById(`section-${i}`);
-                const cardWrap = section.querySelector('.scroll-target');
+                const cardWrap = section.querySelector('.card-wrapper');
 
-                gsap.fromTo(cardWrap, { y: 100, opacity: 0 }, { y: 0, opacity: 1, duration: 1, scrollTrigger: { trigger: section, start: "top 75%" }});
-
-                const tl = gsap.timeline({ scrollTrigger: { trigger: section, start: "top 75%", end: "center center", scrub: 1 }});
-                tl.to(carRig.position, { x: 0, y: 4, z: -2 }, 0); 
+                const tl = gsap.timeline({ scrollTrigger: { trigger: section, start: "top 80%", end: "center center", scrub: 1, invalidateOnRefresh: true }});
+                
+                // Place car securely at the top quarter of the screen, card is naturally at the bottom via CSS
+                tl.fromTo(carRig.position, { x: 0, y: -vHeight, z: -5 }, { x: 0, y: () => vHeight * 0.25, z: -2, ease: "power1.out" }, 0); 
                 tl.to(carModel.rotation, { y: "+=3.14" }, 0);
                 tl.to(coreMat.color, { r: new THREE.Color(cat.color).r, g: new THREE.Color(cat.color).g, b: new THREE.Color(cat.color).b }, 0);
+                
+                tl.fromTo(cardWrap, { y: 100, opacity: 0 }, { y: 0, opacity: 1, ease: "power2.out" }, 0.3);
             });
         });
 
-        // --- 6. FOOTER FIX: DRIVE AWAY ---
-        // Pushes the car straight up and into the background when reaching the footer
+        // --- 7. FOOTER FIX: DRIVE STRAIGHT UP ---
         gsap.to(carRig.position, {
-            y: 12,
-            z: -30,
+            y: () => vHeight, // Drive up past the top of the viewport
+            z: -20, // Fade into distance
             ease: "power2.in",
             scrollTrigger: {
                 trigger: ".cta-footer",
                 start: "top bottom",
                 end: "bottom bottom",
-                scrub: 1
+                scrub: 1,
+                invalidateOnRefresh: true
             }
         });
         
         gsap.to(carModel.rotation, {
-            x: -0.5,
+            x: -0.8, // Pitch up like taking off
             ease: "power2.in",
-            scrollTrigger: {
-                trigger: ".cta-footer",
-                start: "top bottom",
-                end: "bottom bottom",
-                scrub: 1
-            }
+            scrollTrigger: { trigger: ".cta-footer", start: "top bottom", end: "bottom bottom", scrub: 1 }
         });
 
-        // --- 7. LENIS SMOOTH SCROLL ---
+        // --- 8. LENIS SMOOTH SCROLL ---
         const lenis = new Lenis({ duration: 1.2, smooth: true });
         lenis.on('scroll', ScrollTrigger.update);
         gsap.ticker.add((time) => { lenis.raf(time * 1000); });
         gsap.ticker.lagSmoothing(0);
 
-        // --- 8. 3D RENDER LOOP & CURSOR ROTATION ---
-        let currentRotX = 0;
-        let currentRotY = 0;
+        // --- 9. 3D RENDER LOOP & CURSOR ROTATION ---
+        let targetRotX = 0, targetRotY = 0;
 
         function animate() {
             requestAnimationFrame(animate);
@@ -543,31 +493,30 @@
             
             // 360-Degree Mouse Parallax
             if (window.innerWidth > 1024) {
-                // normX/Y is -1 to 1. Map to large rotations.
-                const targetRotY = (normX * Math.PI); // Allow full view of sides
-                const targetRotX = (normY * (Math.PI / 4)); // 45 deg up/down
+                // Full rotation control based on mouse
+                targetRotY = (normX * Math.PI); 
+                targetRotX = (normY * (Math.PI / 4)); 
                 
-                currentRotX += (targetRotX - currentRotX) * 0.05;
-                currentRotY += (targetRotY - currentRotY) * 0.05;
-                
-                carRig.rotation.x = currentRotX;
-                carRig.rotation.y = currentRotY;
-                carRig.rotation.z = -currentRotY * 0.1; // Slight bank based on horizontal pan
+                // Smooth interpolation for the rotation
+                carRig.rotation.x += (targetRotX - carRig.rotation.x) * 0.05;
+                carRig.rotation.y += (targetRotY - carRig.rotation.y) * 0.05;
+                carRig.rotation.z = -carRig.rotation.y * 0.1; // Bank effect
             }
 
-            carModel.position.y = Math.sin(time * 2) * 0.2; // Idle float
-            wheels.forEach(w => w.rotation.z -= 0.05); // Spin wheels
-            coreMat.opacity = 0.6 + Math.sin(time * 5) * 0.4; // Pulse core
+            carModel.position.y = Math.sin(time * 2) * 0.2; 
+            wheels.forEach(w => w.rotation.z -= 0.08); 
+            coreMat.opacity = 0.6 + Math.sin(time * 5) * 0.4; 
 
             renderer.render(scene, camera);
         }
         animate();
 
-        // --- 9. RESIZE HANDLER ---
+        // --- 10. RESIZE HANDLER ---
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
+            calculateViewport(); // Recalculate Frustum math for exact positioning
         });
     </script>
 </body>
