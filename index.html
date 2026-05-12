@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SR006 | Lab Architecture</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SR006 | Responsive Architecture</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -25,7 +25,7 @@
             --sans: 'Inter', sans-serif;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; cursor: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body { 
             background-color: var(--bg-dark); 
@@ -33,44 +33,39 @@
             font-family: var(--sans); 
             overflow-x: hidden; 
             -webkit-font-smoothing: antialiased; 
+            /* Prevents overscroll bounce on mobile */
+            overscroll-behavior-y: none;
+        }
+
+        /* Hide default cursor only on non-touch devices */
+        @media (pointer: fine) {
+            * { cursor: none; }
         }
 
         /* --- BACKGROUND LAYER --- */
         .bg-gradient {
-            position: fixed;
-            inset: 0;
+            position: fixed; inset: 0;
             background: radial-gradient(ellipse at 50% 50%, var(--bg-red) 0%, var(--bg-dark) 70%);
             z-index: 0;
         }
 
-        /* Tech Grid overlay */
         .bg-grid {
-            position: fixed;
-            inset: 0;
+            position: fixed; inset: 0;
             background-image: 
                 linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
             background-size: 4vw 4vw;
-            z-index: 1;
-            pointer-events: none;
+            z-index: 1; pointer-events: none;
         }
 
         /* --- 3D CANVAS LAYER --- */
         #webgl-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 2; /* Sits exactly between background and content */
-            pointer-events: none;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 2; pointer-events: none;
         }
 
         /* --- CONTENT LAYER --- */
-        .content { 
-            position: relative; 
-            z-index: 10; 
-        }
+        .content { position: relative; z-index: 10; }
 
         /* Custom Cursor */
         .cursor-dot {
@@ -86,70 +81,63 @@
             width: 70px; height: 70px; border-color: var(--accent); background: rgba(255, 42, 42, 0.1);
         }
 
+        /* Disable Custom Cursor on Mobile/Touch */
+        @media (pointer: coarse) {
+            .cursor-dot, .cursor-ring { display: none !important; }
+            * { cursor: auto !important; }
+        }
+
+        /* --- NAVIGATION --- */
         nav {
-            position: fixed; top: 0; width: 100%; padding: 2rem 4vw;
-            display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+            position: fixed; top: 0; width: 100%; padding: 1.5rem 4vw;
+            display: flex; justify-content: space-between; align-items: center;
             z-index: 100; font-family: var(--mono); font-size: 0.75rem; text-transform: uppercase;
             letter-spacing: 0.15em; border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(5, 0, 0, 0.5); backdrop-filter: blur(10px);
+            background: rgba(5, 0, 0, 0.6); backdrop-filter: blur(10px);
         }
-        nav .nav-center { text-align: center; color: var(--accent); font-weight: 600; }
-        nav .nav-right { text-align: right; }
+        nav .nav-center { color: var(--accent); font-weight: 600; }
 
+        @media (max-width: 768px) {
+            nav .nav-center { display: none; }
+        }
+
+        /* --- HERO --- */
         .hero {
             height: 100vh; display: flex; flex-direction: column; justify-content: center;
-            align-items: center; text-align: center;
+            align-items: center; text-align: center; padding: 0 5vw;
         }
         .hero h1 {
-            font-size: clamp(4rem, 14vw, 14rem); font-weight: 900; line-height: 0.85;
+            font-size: clamp(3rem, 14vw, 14rem); font-weight: 900; line-height: 0.85;
             letter-spacing: -0.05em; text-transform: uppercase; margin-top: 1rem;
         }
         .hero .outline-text { color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, 0.8); }
 
-        /* --- STRICT GRID LAYOUT TO PREVENT OVERLAP --- */
+        /* --- LAYOUT --- */
         .catalog {
-            width: 100%;
-            max-width: 1800px;
-            margin: 0 auto;
-            padding: 5vh 4vw;
-            display: flex;
-            flex-direction: column;
-            gap: 15vh; /* Massive spacing for smooth scroll feeling */
+            width: 100%; max-width: 1800px; margin: 0 auto; padding: 5vh 4vw;
+            display: flex; flex-direction: column; gap: 15vh;
         }
 
         .category-section {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Strict 50/50 split */
-            gap: 4vw;
-            align-items: center;
-            min-height: 90vh;
-            width: 100%;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 4vw;
+            align-items: center; min-height: 90vh; width: 100%;
         }
 
-        /* Force cards into their respective columns */
         .category-section:nth-child(odd) .card-wrapper { grid-column: 1; justify-self: start; }
         .category-section:nth-child(even) .card-wrapper { grid-column: 2; justify-self: end; }
 
-        .card-wrapper {
-            width: 100%;
-            max-width: 550px;
-            perspective: 1200px;
-        }
+        .card-wrapper { width: 100%; max-width: 550px; perspective: 1200px; }
 
         .category-card {
-            padding: 3.5rem;
-            background: rgba(5, 0, 0, 0.7);
-            border: 1px solid rgba(255, 42, 42, 0.2);
-            backdrop-filter: blur(16px);
-            transform-style: preserve-3d;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            padding: 3.5rem; background: rgba(5, 0, 0, 0.7);
+            border: 1px solid rgba(255, 42, 42, 0.2); backdrop-filter: blur(16px);
+            transform-style: preserve-3d; box-shadow: 0 30px 60px rgba(0,0,0,0.8);
             will-change: transform;
         }
 
         .category-section:nth-child(odd) .category-card { border-left: 3px solid var(--accent); }
         .category-section:nth-child(even) .category-card { border-right: 3px solid var(--accent); text-align: right; }
 
-        /* Inner Parallax */
         .category-card > * { transform: translateZ(30px); }
 
         .category-id {
@@ -163,7 +151,7 @@
         }
         
         .category-desc {
-            font-size: 1.1rem; line-height: 1.6; color: #aaa; margin-bottom: 2.5rem;
+            font-size: 1.1rem; line-height: 1.6; color: #ccc; margin-bottom: 2.5rem;
         }
 
         .explore-btn {
@@ -175,10 +163,10 @@
         .explore-btn:hover { gap: 1.5rem; color: var(--accent); }
 
         .cta-footer {
-            height: 100vh; display: flex; flex-direction: column; justify-content: center;
+            height: 80vh; display: flex; flex-direction: column; justify-content: center;
             align-items: center; text-align: center; border-top: 1px solid rgba(255, 42, 42, 0.2);
             background: radial-gradient(circle at top, rgba(100, 0, 5, 0.8) 0%, var(--bg-dark) 70%);
-            position: relative; z-index: 20;
+            position: relative; z-index: 20; padding: 0 5vw;
         }
 
         #progress-bar {
@@ -189,17 +177,32 @@
             width: 3px; height: 0%; background: var(--accent); transform: translateX(-1px);
         }
 
+        /* --- MOBILE LAYOUT FIXES --- */
         @media (max-width: 1024px) {
-            .category-section { grid-template-columns: 1fr; align-items: end; padding-bottom: 10vh; }
-            .category-section:nth-child(odd) .card-wrapper, .category-section:nth-child(even) .card-wrapper { grid-column: 1; justify-self: center; }
-            .category-section:nth-child(odd) .category-card, .category-section:nth-child(even) .category-card {
-                text-align: center; border-left: none; border-right: none; border-top: 3px solid var(--accent);
+            .catalog { gap: 5vh; padding-top: 0; }
+            .category-section {
+                grid-template-columns: 1fr;
+                align-items: flex-end; /* Push the HTML card to the bottom */
+                padding-bottom: 5vh;
             }
-            .cursor-dot, .cursor-ring { display: none; }
-            * { cursor: auto !important; }
+            .category-section:nth-child(odd) .card-wrapper, 
+            .category-section:nth-child(even) .card-wrapper { 
+                grid-column: 1; 
+                justify-self: center; 
+                /* Force space at top for 3D car */
+                margin-top: 45vh; 
+            }
+            .category-section:nth-child(odd) .category-card, 
+            .category-section:nth-child(even) .category-card {
+                text-align: left; 
+                border-left: none; border-right: none; border-top: 3px solid var(--accent);
+                padding: 2.5rem 2rem;
+                background: rgba(5, 0, 0, 0.85); /* Darker on mobile for text legibility */
+            }
             #progress-bar { display: none; }
-            nav .nav-center { display: none; }
-            nav { grid-template-columns: 1fr 1fr; }
+            
+            /* Remove 3D transform on mobile cards to prevent touch overflow bugs */
+            .category-card, .category-card > * { transform: none !important; }
         }
     </style>
 </head>
@@ -215,7 +218,7 @@
     <nav>
         <div>Brand Lab &copy; 2026</div>
         <div class="nav-center">SYSTEM CATEGORIES</div>
-        <div class="nav-right" id="active-id">AWAITING INPUT</div>
+        <div class="nav-right" id="active-id">INIT</div>
     </nav>
 
     <div id="progress-bar"><div id="progress-inner"></div></div>
@@ -234,8 +237,8 @@
         </div>
 
         <section class="cta-footer">
-            <h2 class="hero-zoom" style="font-size: clamp(3rem, 10vw, 8rem); font-weight: 900; line-height: 1; text-transform: uppercase; letter-spacing: -0.04em;">VIEW FULL<br> REGISTRY</h2>
-            <a href="#" class="explore-btn hover-target" style="margin-top: 3rem; border: 1px solid var(--accent); padding: 1.5rem 4rem;">Access Portal</a>
+            <h2 class="hero-zoom" style="font-size: clamp(2.5rem, 8vw, 8rem); font-weight: 900; line-height: 1; text-transform: uppercase; letter-spacing: -0.04em;">VIEW FULL<br> REGISTRY</h2>
+            <a href="#" class="explore-btn hover-target" style="margin-top: 3rem; border: 1px solid var(--accent); padding: 1.2rem 3rem;">Access Portal</a>
         </section>
     </main>
 
@@ -268,56 +271,62 @@
             catalog.appendChild(section);
         });
 
-        // --- 3. CUSTOM CURSOR & CARD PARALLAX ---
+        // --- 3. CUSTOM CURSOR & PARALLAX (Desktop Only) ---
         const dot = document.querySelector('.cursor-dot');
         const ring = document.querySelector('.cursor-ring');
-        
-        const xDotTo = gsap.quickTo(dot, "x", {duration: 0.1, ease: "power3"});
-        const yDotTo = gsap.quickTo(dot, "y", {duration: 0.1, ease: "power3"});
-        const xRingTo = gsap.quickTo(ring, "x", {duration: 0.3, ease: "power3"});
-        const yRingTo = gsap.quickTo(ring, "y", {duration: 0.3, ease: "power3"});
-
-        let mouseX = 0, mouseY = 0;
         let normX = 0, normY = 0;
 
-        window.addEventListener("mousemove", (e) => {
-            xDotTo(e.clientX); yDotTo(e.clientY);
-            xRingTo(e.clientX); yRingTo(e.clientY);
-            
-            mouseX = e.clientX; mouseY = e.clientY;
-            normX = (e.clientX / window.innerWidth) * 2 - 1;
-            normY = -(e.clientY / window.innerHeight) * 2 + 1;
-        });
+        // Check if device supports hover
+        const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 
-        document.querySelectorAll('.hover-target').forEach(el => {
-            el.addEventListener('mouseenter', () => ring.classList.add('active'));
-            el.addEventListener('mouseleave', () => ring.classList.remove('active'));
-        });
+        if (!isTouchDevice) {
+            const xDotTo = gsap.quickTo(dot, "x", {duration: 0.1, ease: "power3"});
+            const yDotTo = gsap.quickTo(dot, "y", {duration: 0.1, ease: "power3"});
+            const xRingTo = gsap.quickTo(ring, "x", {duration: 0.3, ease: "power3"});
+            const yRingTo = gsap.quickTo(ring, "y", {duration: 0.3, ease: "power3"});
 
-        document.querySelectorAll('.interactive-card').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left - rect.width / 2;
-                const y = e.clientY - rect.top - rect.height / 2;
-                gsap.to(card, {
-                    rotateY: (x / (rect.width / 2)) * 12,
-                    rotateX: (y / (rect.height / 2)) * -12,
-                    duration: 0.5, ease: "power2.out"
+            window.addEventListener("mousemove", (e) => {
+                xDotTo(e.clientX); yDotTo(e.clientY);
+                xRingTo(e.clientX); yRingTo(e.clientY);
+                
+                // -1 to 1 normal mapping for 3D rotation
+                normX = (e.clientX / window.innerWidth) * 2 - 1;
+                normY = -(e.clientY / window.innerHeight) * 2 + 1;
+            });
+
+            document.querySelectorAll('.hover-target').forEach(el => {
+                el.addEventListener('mouseenter', () => ring.classList.add('active'));
+                el.addEventListener('mouseleave', () => ring.classList.remove('active'));
+            });
+
+            document.querySelectorAll('.interactive-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    gsap.to(card, {
+                        rotateY: (x / (rect.width / 2)) * 10,
+                        rotateX: (y / (rect.height / 2)) * -10,
+                        duration: 0.5, ease: "power2.out"
+                    });
                 });
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(card, { rotateY: 0, rotateX: 0, duration: 1, ease: "elastic.out(1, 0.3)" });
+                });
+                card.addEventListener('mouseenter', () => ring.classList.add('active'));
+                card.addEventListener('mouseleave', () => ring.classList.remove('active'));
             });
-            card.addEventListener('mouseleave', () => {
-                gsap.to(card, { rotateY: 0, rotateX: 0, duration: 1, ease: "elastic.out(1, 0.3)" });
-            });
-            card.addEventListener('mouseenter', () => ring.classList.add('active'));
-            card.addEventListener('mouseleave', () => ring.classList.remove('active'));
-        });
+        }
 
         // --- 4. THREE.JS PROCEDURAL CAR ---
         const scene = new THREE.Scene();
         scene.fog = new THREE.FogExp2(0x050000, 0.03);
 
         const camera = new THREE.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 0.1, 100);
-        camera.position.set(0, 0, 16);
+        
+        // **MOBILE FIX**: Push camera back on smaller screens so car fits
+        const isMobile = window.innerWidth <= 1024;
+        camera.position.set(0, 0, isMobile ? 28 : 16);
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -334,12 +343,10 @@
         carRig.add(carModel);
         scene.add(carRig);
         
-        // Premium Materials
         const metalMat = new THREE.MeshPhysicalMaterial({ color: 0x0f0f0f, metalness: 0.9, roughness: 0.2, clearcoat: 1 });
         const glassMat = new THREE.MeshPhysicalMaterial({ color: 0xffffff, transmission: 0.9, opacity: 1, metalness: 0.2, roughness: 0.1, ior: 1.5, thickness: 0.5 });
         const coreMat = new THREE.MeshBasicMaterial({ color: 0xff2a2a });
 
-        // Geometry
         const chassis = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.5, 2.2), metalMat);
         const cabin = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.2, 2, 32).rotateZ(Math.PI / 2), glassMat);
         cabin.position.set(-0.2, 0.7, 0);
@@ -362,7 +369,7 @@
             wheels.push(w);
         });
 
-        // --- 5. FRUSTUM MATH (ZERO OVERLAP GUARANTEE) ---
+        // --- 5. FRUSTUM MATH ---
         let vWidth, vHeight;
         function calculateViewport() {
             const vFov = camera.fov * Math.PI / 180;
@@ -371,14 +378,15 @@
         }
         calculateViewport();
 
-        // --- 6. GSAP SCROLL: "CAR BRINGING THE CARD" EFFECT ---
+        // --- 6. GSAP SCROLL & SYNCHRONIZATION ---
         gsap.registerPlugin(ScrollTrigger);
 
-        // Intro
         gsap.fromTo(".hero-zoom", { scale: 1.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.5, ease: "power3.out", delay: 0.2 });
         gsap.fromTo(".hero-fade", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1, delay: 0.8, ease: "power2.out" });
 
-        gsap.to("#progress-inner", { height: "100%", ease: "none", scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: 0.1 }});
+        if(!isTouchDevice) {
+            gsap.to("#progress-inner", { height: "100%", ease: "none", scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: 0.1 }});
+        }
 
         // Hide car initially
         carRig.position.set(-20, 0, 0);
@@ -386,42 +394,37 @@
 
         let mm = gsap.matchMedia();
 
-        // DESKTOP LOGIC
+        // --- DESKTOP LOGIC ---
         mm.add("(min-width: 1025px)", () => {
             categoriesData.forEach((cat, i) => {
                 const section = document.getElementById(`section-${i}`);
                 const cardWrap = section.querySelector('.card-wrapper');
                 const isLeftCard = i % 2 === 0;
 
-                // FRUSTUM MAGIC: Place car exactly in the center of the EMPTY half of the screen
+                // Center of the empty half
                 const targetCarX = isLeftCard ? (vWidth / 4) : -(vWidth / 4); 
-                // Card slides in from the same side the car is driving towards
                 const cardStartX = isLeftCard ? -100 : 100; 
 
                 const tl = gsap.timeline({
                     scrollTrigger: {
                         trigger: section,
-                        start: "top 90%", // Trigger early
+                        start: "top 90%", 
                         end: "center center",
                         scrub: 1,
-                        invalidateOnRefresh: true, // Recalculates vWidth dynamically on resize
+                        invalidateOnRefresh: true,
                         onEnter: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`,
                         onEnterBack: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`
                     }
                 });
 
-                // Car drives completely across screen to its safe zone
-                // Using a function ensures it recalculates properly on window resize
                 tl.fromTo(carRig.position, 
                     { x: () => isLeftCard ? -vWidth : vWidth, z: -5 }, 
                     { x: () => targetCarX, z: 2, ease: "power1.inOut" }, 0
                 );
                 
-                // Spin car dynamically (adds 180deg each time for S-Curve)
                 accumulatedRotation += Math.PI;
                 tl.to(carModel.rotation, { y: accumulatedRotation, ease: "power2.inOut" }, 0);
 
-                // Morph Geometry
                 tl.to(chassis.scale, { x: cat.geom.l, z: cat.geom.w }, 0);
                 tl.to(cabin.scale, { x: cat.geom.l, z: cat.geom.w }, 0);
                 tl.to(spoiler.scale, { x: cat.geom.w }, 0);
@@ -431,37 +434,56 @@
                     tl.to(w.position, { x: baseWheelPositions[wIdx][0] * cat.geom.l, z: baseWheelPositions[wIdx][2] * cat.geom.w }, 0);
                 });
                 tl.to(coreMat.color, { r: new THREE.Color(cat.color).r, g: new THREE.Color(cat.color).g, b: new THREE.Color(cat.color).b }, 0);
-                tl.to(metalMat.color, { r: new THREE.Color(cat.color).r * 0.2, g: new THREE.Color(cat.color).g * 0.2, b: new THREE.Color(cat.color).b * 0.2 }, 0); // Tint metal slightly
 
-                // HTML Card sliding in (Syncs with the car)
                 tl.fromTo(cardWrap,
-                    { xPercent: cardStartX, opacity: 0, rotationY: isLeftCard ? -20 : 20 },
+                    { xPercent: cardStartX, opacity: 0, rotationY: isLeftCard ? -15 : 15 },
                     { xPercent: 0, opacity: 1, rotationY: 0, ease: "power2.out" }, 0.2
                 );
             });
         });
 
-        // MOBILE LOGIC
+        // --- MOBILE LOGIC ---
         mm.add("(max-width: 1024px)", () => {
             categoriesData.forEach((cat, i) => {
                 const section = document.getElementById(`section-${i}`);
                 const cardWrap = section.querySelector('.card-wrapper');
 
-                const tl = gsap.timeline({ scrollTrigger: { trigger: section, start: "top 80%", end: "center center", scrub: 1, invalidateOnRefresh: true }});
+                const tl = gsap.timeline({ 
+                    scrollTrigger: { 
+                        trigger: section, 
+                        start: "top 85%", 
+                        end: "center center", 
+                        scrub: 1,
+                        onEnter: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`,
+                        onEnterBack: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`
+                    }
+                });
                 
-                // Place car securely at the top quarter of the screen, card is naturally at the bottom via CSS
-                tl.fromTo(carRig.position, { x: 0, y: -vHeight, z: -5 }, { x: 0, y: () => vHeight * 0.25, z: -2, ease: "power1.out" }, 0); 
-                tl.to(carModel.rotation, { y: "+=3.14" }, 0);
+                // Drop car down from top, park in upper half of screen
+                tl.fromTo(carRig.position, { x: 0, y: vHeight, z: -5 }, { x: 0, y: () => vHeight * 0.20, z: 0, ease: "power1.out" }, 0); 
+                
+                accumulatedRotation += Math.PI;
+                tl.to(carModel.rotation, { y: accumulatedRotation }, 0);
+                
+                // Morphs
+                tl.to(chassis.scale, { x: cat.geom.l, z: cat.geom.w }, 0);
+                tl.to(cabin.scale, { x: cat.geom.l, z: cat.geom.w }, 0);
+                tl.to(spoiler.scale, { x: cat.geom.w }, 0);
+                tl.to(spoiler.position, { y: cat.geom.s, x: 2 * cat.geom.l }, 0);
+                wheels.forEach((w, wIdx) => {
+                    tl.to(w.scale, { x: cat.geom.wh, y: cat.geom.wh, z: cat.geom.wh }, 0);
+                    tl.to(w.position, { x: baseWheelPositions[wIdx][0] * cat.geom.l, z: baseWheelPositions[wIdx][2] * cat.geom.w }, 0);
+                });
                 tl.to(coreMat.color, { r: new THREE.Color(cat.color).r, g: new THREE.Color(cat.color).g, b: new THREE.Color(cat.color).b }, 0);
                 
-                tl.fromTo(cardWrap, { y: 100, opacity: 0 }, { y: 0, opacity: 1, ease: "power2.out" }, 0.3);
+                tl.fromTo(cardWrap, { y: 100, opacity: 0 }, { y: 0, opacity: 1, ease: "power2.out" }, 0.2);
             });
         });
 
-        // --- 7. FOOTER FIX: DRIVE STRAIGHT UP ---
+        // --- 7. FOOTER FIX ---
         gsap.to(carRig.position, {
-            y: () => vHeight, // Drive up past the top of the viewport
-            z: -20, // Fade into distance
+            y: () => vHeight, 
+            z: -20, 
             ease: "power2.in",
             scrollTrigger: {
                 trigger: ".cta-footer",
@@ -473,7 +495,7 @@
         });
         
         gsap.to(carModel.rotation, {
-            x: -0.8, // Pitch up like taking off
+            x: -0.8, 
             ease: "power2.in",
             scrollTrigger: { trigger: ".cta-footer", start: "top bottom", end: "bottom bottom", scrub: 1 }
         });
@@ -484,23 +506,20 @@
         gsap.ticker.add((time) => { lenis.raf(time * 1000); });
         gsap.ticker.lagSmoothing(0);
 
-        // --- 9. 3D RENDER LOOP & CURSOR ROTATION ---
+        // --- 9. RENDER LOOP & CURSOR ROTATION ---
         let targetRotX = 0, targetRotY = 0;
 
         function animate() {
             requestAnimationFrame(animate);
             const time = Date.now() * 0.001;
             
-            // 360-Degree Mouse Parallax
-            if (window.innerWidth > 1024) {
-                // Full rotation control based on mouse
+            if (!isTouchDevice && window.innerWidth > 1024) {
                 targetRotY = (normX * Math.PI); 
                 targetRotX = (normY * (Math.PI / 4)); 
                 
-                // Smooth interpolation for the rotation
                 carRig.rotation.x += (targetRotX - carRig.rotation.x) * 0.05;
                 carRig.rotation.y += (targetRotY - carRig.rotation.y) * 0.05;
-                carRig.rotation.z = -carRig.rotation.y * 0.1; // Bank effect
+                carRig.rotation.z = -carRig.rotation.y * 0.1; 
             }
 
             carModel.position.y = Math.sin(time * 2) * 0.2; 
@@ -514,9 +533,11 @@
         // --- 10. RESIZE HANDLER ---
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
+            // Re-adjust camera distance for mobile on resize
+            camera.position.z = window.innerWidth <= 1024 ? 28 : 16;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            calculateViewport(); // Recalculate Frustum math for exact positioning
+            calculateViewport(); 
         });
     </script>
 </body>
