@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SR006 | Brand Lab Categories</title>
+    <title>SR006 | Dynamic Architecture</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
     
+    <!-- Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
@@ -70,20 +71,14 @@
             z-index: 9999;
             pointer-events: none;
         }
-        .cursor-dot {
-            width: 6px;
-            height: 6px;
-            background: white;
-        }
+        .cursor-dot { width: 6px; height: 6px; background: white; }
         .cursor-ring {
-            width: 30px;
-            height: 30px;
+            width: 30px; height: 30px;
             border: 1px solid rgba(255,255,255,0.5);
             transition: width 0.3s ease, height 0.3s ease, border-color 0.3s ease;
         }
         .cursor-ring.active {
-            width: 60px;
-            height: 60px;
+            width: 60px; height: 60px;
             border-color: var(--accent);
             background: rgba(255, 42, 42, 0.1);
             backdrop-filter: blur(2px);
@@ -91,8 +86,7 @@
 
         nav {
             position: fixed;
-            top: 0;
-            width: 100%;
+            top: 0; width: 100%;
             padding: 2rem 3rem;
             display: grid;
             grid-template-columns: 1fr auto 1fr;
@@ -103,10 +97,9 @@
             text-transform: uppercase;
             letter-spacing: 0.15em;
             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(0, 0, 0, 0.3);
+            background: rgba(0, 0, 0, 0.2);
             backdrop-filter: blur(10px);
         }
-
         nav .nav-center { text-align: center; color: var(--accent); font-weight: 600; }
         nav .nav-right { text-align: right; }
 
@@ -120,14 +113,12 @@
             align-items: center;
             text-align: center;
         }
-
         .hero h1 {
-            font-size: clamp(3.5rem, 12vw, 12rem);
+            font-size: clamp(3.5rem, 14vw, 14rem);
             font-weight: 900;
             line-height: 0.85;
             letter-spacing: -0.05em;
             text-transform: uppercase;
-            margin-top: 1rem;
         }
         .hero .outline-text { color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, 0.8); }
 
@@ -138,16 +129,15 @@
             display: flex;
             align-items: center;
             width: 100%;
-            margin-bottom: 15vh;
+            margin-bottom: 10vh;
         }
-
         .category-section:nth-child(odd) { justify-content: flex-start; }
         .category-section:nth-child(even) { justify-content: flex-end; }
 
         .card-wrapper {
             width: 100%;
-            max-width: 550px;
-            perspective: 1000px;
+            max-width: 500px;
+            perspective: 1200px;
         }
 
         .category-card {
@@ -209,11 +199,10 @@
             transition: all 0.3s ease;
             transform: translateZ(40px);
         }
-
         .explore-btn:hover { gap: 1.5rem; color: var(--accent); }
 
         .cta-footer {
-            height: 80vh;
+            height: 70vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -222,7 +211,7 @@
             border-top: 1px solid rgba(255, 42, 42, 0.2);
             background: radial-gradient(circle at top, rgba(100, 0, 5, 0.6) 0%, transparent 70%);
             position: relative;
-            z-index: 20; /* Ensure footer stays above the webgl canvas */
+            z-index: 20; 
         }
 
         #progress-bar {
@@ -237,8 +226,7 @@
         }
 
         #progress-inner {
-            width: 3px;
-            height: 0%;
+            width: 3px; height: 0%;
             background: var(--accent);
             transform: translateX(-1px);
         }
@@ -284,10 +272,9 @@
             <!-- Cards Injected via JS -->
         </div>
 
-        <!-- The Footer Area -->
         <section class="cta-footer">
             <h2 class="hero-zoom" style="font-size: clamp(3rem, 8vw, 6rem); font-weight: 900; line-height: 1; text-transform: uppercase; letter-spacing: -0.04em;">VIEW FULL<br> REGISTRY</h2>
-            <a href="catalog-all.html" class="explore-btn hover-target" style="margin-top: 2rem; border: 1px solid var(--accent); padding: 1rem 3rem;">View All Models</a>
+            <a href="#" class="explore-btn hover-target" style="margin-top: 2rem; border: 1px solid var(--accent); padding: 1rem 3rem;">Access Portal</a>
         </section>
     </main>
 
@@ -336,7 +323,7 @@
             xDotTo(e.clientX); yDotTo(e.clientY);
             xRingTo(e.clientX); yRingTo(e.clientY);
             
-            mouseX = e.clientX; mouseY = e.clientY;
+            // Normalized coords for 3D car rotation (-1 to 1)
             normX = (e.clientX / window.innerWidth) * 2 - 1;
             normY = -(e.clientY / window.innerHeight) * 2 + 1;
         });
@@ -352,8 +339,8 @@
                 const x = e.clientX - rect.left - rect.width / 2;
                 const y = e.clientY - rect.top - rect.height / 2;
                 gsap.to(card, {
-                    rotateY: (x / (rect.width / 2)) * 10,
-                    rotateX: (y / (rect.height / 2)) * -10,
+                    rotateY: (x / (rect.width / 2)) * 15,
+                    rotateX: (y / (rect.height / 2)) * -15,
                     duration: 0.5,
                     ease: "power2.out"
                 });
@@ -382,8 +369,8 @@
         scene.add(mainLight);
         scene.add(new THREE.AmbientLight(0xffffff, 0.2));
 
-        const carRig = new THREE.Group();
-        const carModel = new THREE.Group(); 
+        const carRig = new THREE.Group();     // Controlled by GSAP Position & Mouse Rotation
+        const carModel = new THREE.Group();   // Controlled by GSAP Rotation (Spins)
         carRig.add(carModel);
         scene.add(carRig);
         
@@ -412,10 +399,10 @@
         const core = new THREE.Mesh(new THREE.BoxGeometry(2, 0.2, 1), coreMat);
         carModel.add(core);
 
-        // --- 5. GSAP SCROLL TIMELINES ---
+        // --- 5. GSAP SCROLL & SYNCHRONIZATION ---
         gsap.registerPlugin(ScrollTrigger);
 
-        // Hero Intro
+        // Intro
         gsap.fromTo(".hero-zoom", { scale: 1.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.5, ease: "power3.out", delay: 0.2 });
         gsap.fromTo(".hero-fade", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1, delay: 0.8, ease: "power2.out" });
 
@@ -425,60 +412,78 @@
             scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: 0.1 }
         });
 
-        // Hide car initially
-        carRig.position.set(0, 0, -10);
-        carModel.rotation.set(0.5, 0, 0);
-
         let mm = gsap.matchMedia();
+        let accumulatedRotation = Math.PI * 0.8; // Base rotation
 
-        // DESKTOP LOGIC
+        // DESKTOP LOGIC (The S-Curve Drive & Brought Card Effect)
         mm.add("(min-width: 1025px)", () => {
+            
+            const aspect = window.innerWidth / window.innerHeight;
+
             categoriesData.forEach((cat, i) => {
                 const section = document.getElementById(`section-${i}`);
                 const cardWrap = section.querySelector('.scroll-target');
                 const isLeft = i % 2 === 0;
 
-                // Sync Card and Car
-                const aspect = window.innerWidth / window.innerHeight;
                 const targetCarX = isLeft ? (3.5 * aspect) : -(3.5 * aspect); 
-                const startX = isLeft ? -20 : 20; 
+                const cardStartX = isLeft ? -150 : 150; // Card slides from opposite of car
 
-                // Bring Card in
+                if (i === 0) {
+                    // Initial Drive In from Hero
+                    gsap.fromTo(carRig.position, 
+                        { z: -20, x: 0 }, 
+                        { z: 0, x: targetCarX, ease: "power2.out",
+                          scrollTrigger: { trigger: section, start: "top bottom", end: "center center", scrub: 1 } 
+                        }
+                    );
+                    carModel.rotation.y = accumulatedRotation;
+                } else {
+                    // Continuous sweeping arc from previous car
+                    const tl = gsap.timeline({
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top bottom",
+                            end: "center center",
+                            scrub: 1
+                        }
+                    });
+
+                    // Arc Sweep: Drive across X, curve out to Z and back to 0
+                    tl.to(carRig.position, { x: targetCarX, ease: "power1.inOut" }, 0);
+                    tl.to(carRig.position, { z: 5, duration: 0.5, ease: "power1.out" }, 0);
+                    tl.to(carRig.position, { z: 0, duration: 0.5, ease: "power1.in" }, 0.5);
+
+                    // Continuous Drift Spin
+                    accumulatedRotation += Math.PI; // Add 180 degrees every sweep
+                    tl.to(carModel.rotation, { y: accumulatedRotation, ease: "power1.inOut" }, 0);
+
+                    // Morph Geometry while crossing
+                    tl.to(mainBody.scale, { x: cat.geom.l, z: cat.geom.w }, 0);
+                    tl.to(cabin.scale, { x: cat.geom.l, z: cat.geom.w }, 0);
+                    tl.to(spoiler.scale, { x: cat.geom.w }, 0);
+                    tl.to(spoiler.position, { y: cat.geom.s, x: 2 * cat.geom.l }, 0);
+                    wheels.forEach((w, wIdx) => {
+                        tl.to(w.scale, { x: cat.geom.wh, y: cat.geom.wh, z: cat.geom.wh }, 0);
+                        tl.to(w.position, { x: baseWheelPositions[wIdx][0] * cat.geom.l, z: baseWheelPositions[wIdx][2] * cat.geom.w }, 0);
+                    });
+                    tl.to(coreMat.color, { r: new THREE.Color(cat.color).r, g: new THREE.Color(cat.color).g, b: new THREE.Color(cat.color).b }, 0);
+                }
+
+                // The Card Slide-in (Car brings it)
                 gsap.fromTo(cardWrap,
-                    { x: startX * 10, opacity: 0 },
+                    { x: cardStartX, opacity: 0, scale: 0.95 },
                     { 
-                        x: 0, opacity: 1, ease: "power2.out",
-                        scrollTrigger: { trigger: section, start: "top 80%", end: "center center", scrub: 1 }
+                        x: 0, opacity: 1, scale: 1, ease: "back.out(1.2)",
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top 60%", // Triggers slightly after car starts moving
+                            end: "center center",
+                            scrub: 1,
+                            onEnter: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`,
+                            onEnterBack: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`
+                        }
                     }
                 );
-
-                // Bring Car in with the card
-                const tl = gsap.timeline({
-                    scrollTrigger: {
-                        trigger: section,
-                        start: "top 80%",
-                        end: "center center",
-                        scrub: 1,
-                        onEnter: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`,
-                        onEnterBack: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`
-                    }
-                });
-
-                tl.fromTo(carRig.position, { x: startX, z: -10 }, { x: targetCarX, z: 3, ease: "power2.out" }, 0);
-                
-                const targetRotY = isLeft ? Math.PI * 0.8 : Math.PI * 1.2;
-                tl.fromTo(carModel.rotation, { y: targetRotY - Math.PI }, { y: targetRotY, ease: "power2.inOut" }, 0);
-
-                // Morph Geometry
-                tl.to(mainBody.scale, { x: cat.geom.l, z: cat.geom.w }, 0);
-                tl.to(cabin.scale, { x: cat.geom.l, z: cat.geom.w }, 0);
-                tl.to(spoiler.scale, { x: cat.geom.w }, 0);
-                tl.to(spoiler.position, { y: cat.geom.s, x: 2 * cat.geom.l }, 0);
-                wheels.forEach((w, wIdx) => {
-                    tl.to(w.scale, { x: cat.geom.wh, y: cat.geom.wh, z: cat.geom.wh }, 0);
-                    tl.to(w.position, { x: baseWheelPositions[wIdx][0] * cat.geom.l, z: baseWheelPositions[wIdx][2] * cat.geom.w }, 0);
-                });
-                tl.to(coreMat.color, { r: new THREE.Color(cat.color).r, g: new THREE.Color(cat.color).g, b: new THREE.Color(cat.color).b }, 0);
             });
         });
 
@@ -497,22 +502,22 @@
             });
         });
 
-        // --- 6. FOOTER FIX (DRIVE AWAY) ---
-        // When scrolling into the footer, drive the car up and off-screen
+        // --- 6. FOOTER FIX: DRIVE AWAY ---
+        // Pushes the car straight up and into the background when reaching the footer
         gsap.to(carRig.position, {
-            y: 15,
+            y: 12,
             z: -30,
             ease: "power2.in",
             scrollTrigger: {
                 trigger: ".cta-footer",
-                start: "top bottom", // Starts when footer enters viewport
-                end: "bottom bottom", // Ends when user reaches bottom of page
+                start: "top bottom",
+                end: "bottom bottom",
                 scrub: 1
             }
         });
         
         gsap.to(carModel.rotation, {
-            x: -0.5, // Tilts the car up as it flies away
+            x: -0.5,
             ease: "power2.in",
             scrollTrigger: {
                 trigger: ".cta-footer",
@@ -528,7 +533,7 @@
         gsap.ticker.add((time) => { lenis.raf(time * 1000); });
         gsap.ticker.lagSmoothing(0);
 
-        // --- 8. RENDER LOOP ---
+        // --- 8. 3D RENDER LOOP & CURSOR ROTATION ---
         let currentRotX = 0;
         let currentRotY = 0;
 
@@ -536,21 +541,23 @@
             requestAnimationFrame(animate);
             const time = Date.now() * 0.001;
             
-            // Mouse parallax applied to the Rig container
+            // 360-Degree Mouse Parallax
             if (window.innerWidth > 1024) {
-                const targetRotX = (normY * 0.2); 
-                const targetRotY = (normX * 0.2);
+                // normX/Y is -1 to 1. Map to large rotations.
+                const targetRotY = (normX * Math.PI); // Allow full view of sides
+                const targetRotX = (normY * (Math.PI / 4)); // 45 deg up/down
+                
                 currentRotX += (targetRotX - currentRotX) * 0.05;
                 currentRotY += (targetRotY - currentRotY) * 0.05;
                 
                 carRig.rotation.x = currentRotX;
-                carRig.rotation.z = -currentRotY * 0.5; 
+                carRig.rotation.y = currentRotY;
+                carRig.rotation.z = -currentRotY * 0.1; // Slight bank based on horizontal pan
             }
 
-            // Idle floating applied to the Model container (prevents GSAP Y conflict)
-            carModel.position.y = Math.sin(time * 2) * 0.2; 
-            wheels.forEach(w => w.rotation.z -= 0.05);
-            coreMat.opacity = 0.6 + Math.sin(time * 5) * 0.4;
+            carModel.position.y = Math.sin(time * 2) * 0.2; // Idle float
+            wheels.forEach(w => w.rotation.z -= 0.05); // Spin wheels
+            coreMat.opacity = 0.6 + Math.sin(time * 5) * 0.4; // Pulse core
 
             renderer.render(scene, camera);
         }
