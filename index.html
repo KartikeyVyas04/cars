@@ -36,7 +36,6 @@
             overscroll-behavior-y: none;
         }
 
-        /* Hide default cursor only on non-touch devices */
         @media (pointer: fine) { * { cursor: none; } }
 
         /* --- CINEMATIC BACKGROUND --- */
@@ -372,13 +371,14 @@
             gsap.to("#progress-inner", { height: "100%", ease: "none", scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: 0.1 }});
         }
 
-        // Initialize Car Position deep off-screen so it's hidden during the Hero section
-        gsap.set(carRig.position, { x: -100, z: -5 });
-        gsap.set(carModel.rotation, { y: 0 });
+        // --- FIX: COMPLETELY HIDE CAR IN HERO SECTION ---
+        // Ensure the car starts entirely off-screen and invisible until scrolling down
+        carRig.position.set(-100, 0, 0); 
+        carRig.visible = false;
 
         let mm = gsap.matchMedia();
 
-        // --- DESKTOP LOGIC (Flawless Scroll-Back Fix) ---
+        // --- DESKTOP LOGIC ---
         mm.add("(min-width: 1025px)", () => {
             let accumulatedRotation = 0;
             
@@ -387,14 +387,21 @@
                 const cardWrap = section.querySelector('.card-wrapper');
                 const isLeftCard = i % 2 === 0;
 
-                // Target calculations based on precise frustum width
                 const targetCarX = isLeftCard ? (vWidth / 4) : -(vWidth / 4); 
-                
-                // For the very first scroll, bring the car from WAY off screen (-vWidth * 1.5)
-                // For subsequent scrolls, seamlessly start from where the LAST animation left off
+                // First entrance comes from completely out of frame
                 const prevTargetCarX = i === 0 ? -(vWidth * 1.5) : (isLeftCard ? -(vWidth / 4) : (vWidth / 4));
                 
                 const cardStartX = isLeftCard ? -100 : 100; 
+
+                // Dedicated trigger to ensure visibility toggles properly
+                if (i === 0) {
+                    ScrollTrigger.create({
+                        trigger: section,
+                        start: "top 90%",
+                        onEnter: () => { carRig.visible = true; },
+                        onLeaveBack: () => { carRig.visible = false; document.getElementById('active-id').innerText = "AWAITING INPUT"; }
+                    });
+                }
 
                 const tl = gsap.timeline({
                     scrollTrigger: {
@@ -417,10 +424,7 @@
                 // Continuous Spin
                 const startRotY = i * Math.PI;
                 const endRotY = (i + 1) * Math.PI;
-                tl.fromTo(carModel.rotation, 
-                    { y: startRotY }, 
-                    { y: endRotY, ease: "power2.inOut" }, 0
-                );
+                tl.fromTo(carModel.rotation, { y: startRotY }, { y: endRotY, ease: "power2.inOut" }, 0);
 
                 // Morphing
                 tl.to(chassis.scale, { x: cat.geom.l, z: cat.geom.w }, 0);
@@ -450,6 +454,15 @@
                 const section = document.getElementById(`section-${i}`);
                 const cardWrap = section.querySelector('.card-wrapper');
 
+                if (i === 0) {
+                    ScrollTrigger.create({
+                        trigger: section,
+                        start: "top 90%",
+                        onEnter: () => { carRig.visible = true; },
+                        onLeaveBack: () => { carRig.visible = false; document.getElementById('active-id').innerText = "AWAITING INPUT"; }
+                    });
+                }
+
                 const tl = gsap.timeline({ 
                     scrollTrigger: { trigger: section, start: "top 85%", end: "center center", scrub: 1, invalidateOnRefresh: true,
                         onEnter: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`,
@@ -457,7 +470,6 @@
                     }
                 });
                 
-                // Keep the car perfectly centered, drop it from way high up on the first scroll
                 const startY = i === 0 ? -(vHeight * 1.5) : vHeight * 0.20;
                 const startZ = i === 0 ? -5 : -2;
 
@@ -489,7 +501,6 @@
             scrollTrigger: { trigger: ".cta-footer", start: "top bottom", end: "bottom bottom", scrub: 1, invalidateOnRefresh: true }
         });
         
-        // Pushes the car straight up out of the viewport
         footerTl.to(carRig.position, { y: () => vHeight, z: -20, ease: "power2.in" }, 0);
         footerTl.to(carModel.rotation, { x: -0.8, ease: "power2.in" }, 0);
 
@@ -548,3 +559,6 @@
     </script>
 </body>
 </html>
+
+
+
