@@ -147,6 +147,7 @@
         
         .category-desc {
             font-size: 1.1rem; line-height: 1.6; color: #aaa; margin-bottom: 2.5rem;
+            transform: translateZ(20px);
         }
 
         .explore-btn {
@@ -154,6 +155,7 @@
             color: var(--text); padding: 1rem 0; text-decoration: none; font-family: var(--mono);
             font-weight: 600; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.1em;
             border-bottom: 1px solid var(--accent); transition: all 0.3s ease;
+            transform: translateZ(40px);
         }
         .explore-btn:hover { gap: 1.5rem; color: var(--accent); }
 
@@ -346,6 +348,7 @@
         baseWheelPositions.forEach(pos => {
             const w = new THREE.Mesh(wheelGeo, wheelMat);
             w.position.set(...pos);
+            w.rotation.x = Math.PI / 2;
             carModel.add(w);
             wheels.push(w);
         });
@@ -369,23 +372,27 @@
             gsap.to("#progress-inner", { height: "100%", ease: "none", scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: 0.1 }});
         }
 
-        // Initialize Car Position
-        gsap.set(carRig.position, { x: -20, z: -5 });
+        // Initialize Car Position deep off-screen so it's hidden during the Hero section
+        gsap.set(carRig.position, { x: -100, z: -5 });
         gsap.set(carModel.rotation, { y: 0 });
 
         let mm = gsap.matchMedia();
 
         // --- DESKTOP LOGIC (Flawless Scroll-Back Fix) ---
         mm.add("(min-width: 1025px)", () => {
+            let accumulatedRotation = 0;
+            
             categoriesData.forEach((cat, i) => {
                 const section = document.getElementById(`section-${i}`);
                 const cardWrap = section.querySelector('.card-wrapper');
                 const isLeftCard = i % 2 === 0;
 
-                // Physics target calculation
+                // Target calculations based on precise frustum width
                 const targetCarX = isLeftCard ? (vWidth / 4) : -(vWidth / 4); 
-                // Determine exactly where the car ended in the PREVIOUS section
-                const prevTargetCarX = i === 0 ? -vWidth : (isLeftCard ? -(vWidth / 4) : (vWidth / 4));
+                
+                // For the very first scroll, bring the car from WAY off screen (-vWidth * 1.5)
+                // For subsequent scrolls, seamlessly start from where the LAST animation left off
+                const prevTargetCarX = i === 0 ? -(vWidth * 1.5) : (isLeftCard ? -(vWidth / 4) : (vWidth / 4));
                 
                 const cardStartX = isLeftCard ? -100 : 100; 
 
@@ -401,7 +408,7 @@
                     }
                 });
 
-                // Car Drive (Exactly matches previous end-state to current target-state)
+                // Car Drive 
                 tl.fromTo(carRig.position, 
                     { x: () => prevTargetCarX, z: i === 0 ? -5 : 2 }, 
                     { x: () => targetCarX, z: 2, ease: "power1.inOut" }, 0
@@ -437,6 +444,8 @@
 
         // --- MOBILE LOGIC ---
         mm.add("(max-width: 1024px)", () => {
+            let accumulatedRotation = 0;
+            
             categoriesData.forEach((cat, i) => {
                 const section = document.getElementById(`section-${i}`);
                 const cardWrap = section.querySelector('.card-wrapper');
@@ -448,8 +457,8 @@
                     }
                 });
                 
-                // Car sits perfectly at the top 20% of the screen
-                const startY = i === 0 ? -vHeight : vHeight * 0.20;
+                // Keep the car perfectly centered, drop it from way high up on the first scroll
+                const startY = i === 0 ? -(vHeight * 1.5) : vHeight * 0.20;
                 const startZ = i === 0 ? -5 : -2;
 
                 tl.fromTo(carRig.position, 
