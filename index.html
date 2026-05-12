@@ -3,534 +3,453 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SR006 | Brand Lab Categories</title>
+    <title>SR006 | Brand Lab Interactive</title>
     
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;700;900&display=swap" rel="stylesheet">
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- GSAP & Smooth Scroll (Lenis) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.34/dist/lenis.min.js"></script>
 
     <style>
         :root {
-            --bg-dark: #020000;
-            --bg-red: #2a0005;
-            --text: #f5f5f5;
+            --bg-dark: #050000;
+            --bg-red: #3a0005;
+            --text: #efefef;
             --accent: #ff2a2a;
             --mono: 'IBM Plex Mono', monospace;
             --sans: 'Inter', sans-serif;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        
-        body { 
-            background-color: var(--bg-dark); 
-            color: var(--text); 
-            font-family: var(--sans); 
-            overflow-x: hidden; 
-            -webkit-font-smoothing: antialiased; 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            cursor: none; /* Hide default cursor for custom cursor */
         }
 
-        /* Ambient Red/Black Gradient Background */
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            font-family: var(--sans);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* --- BACKGROUND --- */
         .bg-gradient {
             position: fixed;
             inset: 0;
-            background: radial-gradient(ellipse at 50% 40%, var(--bg-red) 0%, var(--bg-dark) 70%);
-            z-index: 0;
+            background: radial-gradient(circle at 50% 0%, var(--bg-red) 0%, var(--bg-dark) 60%);
+            z-index: -2;
         }
 
-        /* Cinematic Noise Texture */
-        .noise-overlay {
+        .noise {
             position: fixed;
             inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
-            z-index: 1;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            z-index: -1;
             pointer-events: none;
         }
 
-        #webgl-container {
+        /* --- CUSTOM CURSOR --- */
+        .cursor {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100vw;
-            height: 100vh;
-            z-index: 2;
+            width: 12px;
+            height: 12px;
+            background-color: var(--text);
+            border-radius: 50%;
             pointer-events: none;
-            mix-blend-mode: screen;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+            transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1), height 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, width, height;
         }
 
+        .cursor.active {
+            width: 60px;
+            height: 60px;
+            background-color: var(--accent);
+        }
+
+        /* --- NAVIGATION --- */
         nav {
             position: fixed;
             top: 0;
             width: 100%;
-            padding: 2rem 3rem;
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
+            padding: 2rem 4vw;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
             z-index: 100;
             font-family: var(--mono);
             font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.15em;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
+            letter-spacing: 0.1em;
+            mix-blend-mode: difference;
         }
 
-        nav .nav-center { text-align: center; color: var(--accent); font-weight: 600; }
-        nav .nav-right { text-align: right; }
-
-        .content {
-            position: relative;
-            z-index: 10;
-        }
-
-        section {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            padding: 0 5vw;
-        }
-
+        /* --- HERO --- */
         .hero {
+            height: 100vh;
+            display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             text-align: center;
-            height: 100vh;
+            position: relative;
         }
 
         .hero h1 {
-            font-size: clamp(3.5rem, 12vw, 12rem);
+            font-size: clamp(3rem, 12vw, 12rem);
             font-weight: 900;
             line-height: 0.85;
             letter-spacing: -0.05em;
             text-transform: uppercase;
-            margin-top: 1rem;
+            will-change: transform;
         }
 
-        .hero .outline-text {
+        .outline {
             color: transparent;
             -webkit-text-stroke: 1px rgba(255, 255, 255, 0.8);
         }
 
-        /* --- NEW CATEGORY LAYOUT --- */
-        .category-section {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            max-width: 1600px;
-            margin: 0 auto;
-            min-height: 120vh; /* Extra height for smooth scrubbing */
-        }
-
-        /* Alternate sides for desktop */
-        .category-section:nth-child(even) { flex-direction: row-reverse; }
-
-        .category-card {
-            width: 100%;
-            max-width: 550px;
-            padding: 4rem 3rem;
-            background: rgba(5, 0, 0, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-left: 3px solid var(--accent);
-            backdrop-filter: blur(16px);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            opacity: 0; /* Handled by GSAP */
-            transform: translateY(50px);
-        }
-
-        /* Override border for even items to put the accent line on the right */
-        .category-section:nth-child(even) .category-card {
-            border-left: 1px solid rgba(255, 255, 255, 0.05);
-            border-right: 3px solid var(--accent);
-            text-align: right;
-        }
-
-        .category-id {
-            font-family: var(--mono);
-            color: var(--accent);
-            font-size: 1rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            display: block;
-            letter-spacing: 0.1em;
-        }
-
-        .category-title {
-            font-size: clamp(2.5rem, 4vw, 4rem);
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            line-height: 1;
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
-        }
-        
-        .category-desc {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: #aaa;
-            margin-bottom: 2.5rem;
-        }
-
-        .explore-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 1rem;
-            background: transparent;
-            color: var(--text);
-            padding: 1rem 0;
-            text-decoration: none;
-            font-family: var(--mono);
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            border-bottom: 1px solid var(--accent);
-            transition: all 0.3s ease;
-        }
-
-        .explore-btn:hover {
-            gap: 1.5rem;
-            color: var(--accent);
-        }
-
-        .cta-footer {
-            min-height: 80vh;
+        /* --- CAR CATALOG (3D MOUSE INTERACTIONS) --- */
+        .catalog {
+            padding: 10vh 5vw;
             display: flex;
             flex-direction: column;
-            justify-content: center;
+            gap: 15vh;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .car-card {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 4rem;
             align-items: center;
-            text-align: center;
-            border-top: 1px solid rgba(255, 42, 42, 0.2);
-            background: radial-gradient(circle at top, rgba(100, 0, 5, 0.6) 0%, transparent 70%);
+            perspective: 1500px; /* Essential for 3D effect */
         }
 
-        /* Scroll Progress Indicator */
-        #progress-bar {
-            position: fixed;
-            right: 2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            height: 300px;
-            width: 1px;
-            background: rgba(255, 255, 255, 0.1);
-            z-index: 100;
+        .car-card:nth-child(even) {
+            grid-template-columns: 1fr 1.2fr;
+        }
+        .car-card:nth-child(even) .card-image-wrapper {
+            order: 2;
         }
 
-        #progress-inner {
-            width: 3px;
-            height: 0%;
-            background: var(--accent);
-            transform: translateX(-1px);
+        /* Image Wrapper & 3D Element */
+        .card-image-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/10;
+            border-radius: 4px;
+            transform-style: preserve-3d;
+            will-change: transform;
         }
 
-        @media (max-width: 1024px) {
-            .category-section, .category-section:nth-child(even) { 
-                flex-direction: column; 
-                justify-content: flex-end; 
-                padding-bottom: 10vh;
+        .card-image-inner {
+            position: absolute;
+            inset: 0;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            transform: translateZ(50px); /* Pushes image out towards user */
+        }
+
+        .card-image-inner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1.1); /* Buffer for mouse movement */
+            will-change: transform;
+            transition: filter 0.5s ease;
+            filter: grayscale(80%) brightness(0.8);
+        }
+
+        .car-card:hover .card-image-inner img {
+            filter: grayscale(0%) brightness(1);
+        }
+
+        /* Typography inside cards */
+        .card-info {
+            transform: translateZ(30px);
+        }
+
+        .card-id {
+            font-family: var(--mono);
+            color: var(--accent);
+            display: block;
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+            font-size: 0.9rem;
+        }
+
+        .card-title {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 800;
+            text-transform: uppercase;
+            line-height: 0.9;
+            margin-bottom: 2rem;
+            letter-spacing: -0.04em;
+        }
+
+        .card-meta {
+            font-family: var(--mono);
+            font-size: 0.85rem;
+            color: #999;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1.5rem;
+        }
+
+        .meta-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            text-transform: uppercase;
+        }
+
+        .meta-row span:last-child {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 2rem;
+            padding: 1rem 0;
+            color: var(--text);
+            font-family: var(--mono);
+            text-transform: uppercase;
+            text-decoration: none;
+            border-bottom: 1px solid var(--accent);
+            transition: color 0.3s ease;
+        }
+
+        .btn:hover {
+            color: var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .car-card, .car-card:nth-child(even) {
+                grid-template-columns: 1fr;
+                gap: 2rem;
             }
-            .category-card { 
-                max-width: 100%; 
-                text-align: center; 
-                border-left: none; 
-                border-top: 3px solid var(--accent);
-                padding: 2.5rem 1.5rem;
-                background: rgba(5, 0, 0, 0.85); /* Darker on mobile for readability */
-            }
-            .category-section:nth-child(even) .category-card {
-                border-right: none;
-                border-top: 3px solid var(--accent);
-                text-align: center;
-            }
-            nav { grid-template-columns: 1fr 1fr; padding: 1.5rem; }
-            nav .nav-center { display: none; }
-            #progress-bar { display: none; }
+            .car-card:nth-child(even) .card-image-wrapper { order: 0; }
+            nav { padding: 1.5rem; }
+        }
+
+        /* Touch devices: disable custom cursor */
+        @media (hover: none) and (pointer: coarse) {
+            * { cursor: auto !important; }
+            .cursor { display: none; }
+            .card-image-inner img { filter: grayscale(0%) brightness(1); }
         }
     </style>
 </head>
 <body>
 
     <div class="bg-gradient"></div>
-    <div class="noise-overlay"></div>
-    <div id="webgl-container"></div>
-    <div id="progress-bar"><div id="progress-inner"></div></div>
+    <div class="noise"></div>
+    
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
 
     <nav>
-        <div>Brand Lab &copy; 2026</div>
-        <div class="nav-center">SERIES CATEGORIES</div>
-        <div class="nav-right" id="active-id">AWAITING INPUT</div>
+        <div>SR006 &copy; 2026</div>
+        <div>Brand Lab Collection</div>
     </nav>
 
-    <main class="content">
+    <div class="content">
+        <!-- Hero Section -->
         <section class="hero">
-            <div style="font-family: var(--mono); color: var(--accent); letter-spacing: 0.2em; font-size: 0.9rem;" class="hero-fade">SELECT YOUR ARCHITECTURE</div>
-            <h1 class="hero-zoom">
+            <h1 id="hero-text">
                 DIECAST<br>
-                <span class="outline-text">SERIES</span>
+                <span class="outline">LEGACY</span>
             </h1>
+            <p style="font-family: var(--mono); margin-top: 2rem; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.1em;">Scroll to interact</p>
         </section>
 
-        <!-- CATEGORIES GENERATED HERE -->
-        <div id="catalog"></div>
-
-        <section class="cta-footer">
-            <h2 class="hero-zoom" style="font-size: clamp(3rem, 8vw, 6rem); font-weight: 900; line-height: 1; text-transform: uppercase; letter-spacing: -0.04em;">VIEW FULL<br> REGISTRY</h2>
-            <a href="catalog-all.html" class="explore-btn hero-fade" style="margin-top: 2rem; border: 1px solid var(--accent); padding: 1rem 3rem;">View All Models</a>
+        <!-- Dynamic Catalog Section -->
+        <section class="catalog" id="catalog-container">
+            <!-- Cards injected via JS -->
         </section>
-    </main>
+    </div>
 
     <script>
-        // --- 1. DATA: CATEGORIES ---
-        const categoriesData = [
-            { 
-                id: "01", 
-                title: "Hyper-Aero", 
-                desc: "Engineered for absolute zero drag. Wide wheelbases, slammed suspensions, and aggressive aerodynamics.", 
-                link: "catalog.html?category=hyper-aero", 
-                color: "#ff2a2a", 
-                geom: { length: 1.2, width: 1.1, spoilerY: 0.5, wheelScale: 1 } 
-            },
-            { 
-                id: "02", 
-                title: "Track-Spec", 
-                desc: "Built for the circuit. Featuring massive high-downforce rear wings, roll cages, and extreme camber setups.", 
-                link: "catalog.html?category=track-spec", 
-                color: "#473DFE", 
-                geom: { length: 1.0, width: 1.2, spoilerY: 1.4, wheelScale: 1.1 } 
-            },
-            { 
-                id: "03", 
-                title: "Street Drift", 
-                desc: "Underground aesthetics. Short wheelbases, widebody kits, and neon underglow cores.", 
-                link: "catalog.html?category=street-drift", 
-                color: "#FFD700", 
-                geom: { length: 0.85, width: 1.3, spoilerY: 0.8, wheelScale: 1.2 } 
-            },
-            { 
-                id: "04", 
-                title: "Halo Concept", 
-                desc: "The future of automotive design. Elongated chassis, conceptual wheel covers, and abstract geometry.", 
-                link: "catalog.html?category=halo-concept", 
-                color: "#00E5FF", 
-                geom: { length: 1.5, width: 0.9, spoilerY: 0.3, wheelScale: 0.8 } 
-            }
+        // --- 1. DATA: REAL IMAGES (Unsplash Placeholders) ---
+        const carData = [
+            { id: "001", name: "Apex-R Track", price: "$245", type: "Hypercar", img: "https://images.unsplash.com/photo-1614200187524-dc4b892acf16?q=80&w=1600&auto=format&fit=crop" },
+            { id: "002", name: "Nightfall GT", price: "$180", type: "Endurance", img: "https://images.unsplash.com/photo-1603584173870-7f23fdae1b7a?q=80&w=1600&auto=format&fit=crop" },
+            { id: "003", name: "Crimson V8", price: "$320", type: "Muscle Spec", img: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?q=80&w=1600&auto=format&fit=crop" },
+            { id: "004", name: "Halo Concept", price: "$450", type: "Prototype", img: "https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?q=80&w=1600&auto=format&fit=crop" }
         ];
 
         // --- 2. GENERATE UI ---
-        const catalog = document.getElementById('catalog');
-        categoriesData.forEach(cat => {
-            const section = document.createElement('section');
-            section.className = 'category-section';
-            section.id = `section-${cat.id}`;
-            
-            // Empty div acts as a spacer to push the card to the side on desktop
-            section.innerHTML = `
-                <div class="spacer" style="flex: 1;"></div>
-                <div class="category-card">
-                    <span class="category-id">SERIES // ${cat.id}</span>
-                    <h2 class="category-title" style="color: ${cat.color}">${cat.title}</h2>
-                    <p class="category-desc">${cat.desc}</p>
-                    <a href="${cat.link}" class="explore-btn">Explore Series &rarr;</a>
+        const catalog = document.getElementById('catalog-container');
+        
+        carData.forEach(car => {
+            const cardHtml = `
+                <div class="car-card">
+                    <div class="card-image-wrapper interactive-card">
+                        <div class="card-image-inner">
+                            <img src="${car.img}" alt="${car.name}" loading="lazy">
+                        </div>
+                    </div>
+                    <div class="card-info">
+                        <span class="card-id">SERIES // ${car.id}</span>
+                        <h2 class="card-title">${car.name}</h2>
+                        <div class="card-meta">
+                            <div class="meta-row"><span>Classification</span><span>${car.type}</span></div>
+                            <div class="meta-row"><span>Unit Price</span><span>${car.price}</span></div>
+                            <div class="meta-row"><span>Availability</span><span>In Stock</span></div>
+                        </div>
+                        <a href="#" class="btn hover-target">View Specifications</a>
+                    </div>
                 </div>
             `;
-            catalog.appendChild(section);
+            catalog.insertAdjacentHTML('beforeend', cardHtml);
         });
 
-        // --- 3. THREE.JS SCENE SETUP ---
-        const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x1a0000, 0.03);
+        // --- 3. CUSTOM CURSOR LOGIC ---
+        const cursor = document.getElementById('cursor');
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
+        let cursorX = mouseX;
+        let cursorY = mouseY;
 
-        const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 0, 15);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        document.getElementById('webgl-container').appendChild(renderer.domElement);
-
-        const mainLight = new THREE.PointLight(0xffffff, 1.5, 50);
-        mainLight.position.set(5, 5, 5);
-        scene.add(mainLight);
-        scene.add(new THREE.AmbientLight(0xffffff, 0.2));
-
-        // Procedural Car Rig
-        const carRig = new THREE.Group();
-        const carGroup = new THREE.Group(); 
-        carRig.add(carGroup);
-        scene.add(carRig);
-        
-        const wireframeMat = new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: true, transparent: true, opacity: 0.2 });
-        
-        const mainBody = new THREE.Mesh(new THREE.BoxGeometry(4.5, 0.5, 2.2), wireframeMat);
-        const cabin = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 1.2, 2, 4).rotateZ(Math.PI / 2), wireframeMat);
-        cabin.position.set(-0.2, 0.8, 0);
-        const spoiler = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 2.2), wireframeMat);
-        spoiler.position.set(2, 0.8, 0);
-
-        carGroup.add(mainBody, cabin, spoiler);
-
-        const wheelGeo = new THREE.TorusGeometry(0.4, 0.15, 8, 16);
-        const wheels = [];
-        const baseWheelPositions = [[-1.5, -0.2, 1.2], [1.5, -0.2, 1.2], [-1.5, -0.2, -1.2], [1.5, -0.2, -1.2]];
-        baseWheelPositions.forEach(pos => {
-            const wheel = new THREE.Mesh(wheelGeo, wireframeMat);
-            wheel.position.set(...pos);
-            wheel.rotation.x = Math.PI / 2;
-            carGroup.add(wheel);
-            wheels.push(wheel);
+        // Track Mouse
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
         });
 
-        const coreMat = new THREE.MeshBasicMaterial({ color: 0xff2a2a, transparent: true, opacity: 0.8 });
-        const core = new THREE.Mesh(new THREE.BoxGeometry(2, 0.2, 1), coreMat);
-        carGroup.add(core);
+        // Smooth Cursor Render Loop
+        gsap.ticker.add(() => {
+            // Lerp (Linear Interpolation) for smoothness
+            cursorX += (mouseX - cursorX) * 0.2;
+            cursorY += (mouseY - cursorY) * 0.2;
+            gsap.set(cursor, { x: cursorX, y: cursorY });
+        });
 
-        // --- 4. GSAP ANIMATIONS & OVERLAP FIX ---
-        gsap.registerPlugin(ScrollTrigger);
+        // Expand cursor on interactive elements
+        const hoverTargets = document.querySelectorAll('a, .hover-target, .interactive-card');
+        hoverTargets.forEach(target => {
+            target.addEventListener('mouseenter', () => cursor.classList.add('active'));
+            target.addEventListener('mouseleave', () => cursor.classList.remove('active'));
+        });
 
-        // Intro Animations
-        gsap.fromTo(".hero-zoom", { scale: 1.2, opacity: 0 }, { scale: 1, opacity: 1, duration: 1.5, ease: "power3.out", delay: 0.2 });
-        gsap.fromTo(".hero-fade", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1, delay: 0.8, ease: "power2.out" });
 
-        // Fade in Category Cards
-        gsap.utils.toArray('.category-card').forEach(card => {
-            gsap.to(card, {
-                opacity: 1, y: 0, duration: 1, ease: "back.out(1)",
-                scrollTrigger: { trigger: card, start: "top 85%" }
+        // --- 4. 3D MOUSE PARALLAX / TILT LOGIC ---
+        const cards = document.querySelectorAll('.interactive-card');
+
+        cards.forEach(card => {
+            const inner = card.querySelector('.card-image-inner');
+            const img = card.querySelector('img');
+
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                
+                // Calculate mouse position relative to the center of the card
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+
+                // Calculate rotation (max 15 degrees)
+                const rotateX = (y / (rect.height / 2)) * -15;
+                const rotateY = (x / (rect.width / 2)) * 15;
+
+                // Move image slightly inside the wrapper for deep parallax
+                const moveX = (x / rect.width) * -20;
+                const moveY = (y / rect.height) * -20;
+
+                // Apply GSAP animation for buttery smooth tilt
+                gsap.to(inner, {
+                    rotateX: rotateX,
+                    rotateY: rotateY,
+                    duration: 0.5,
+                    ease: "power2.out"
+                });
+
+                gsap.to(img, {
+                    x: moveX,
+                    y: moveY,
+                    scale: 1.15,
+                    duration: 0.5,
+                    ease: "power2.out"
+                });
+            });
+
+            // Reset on mouse leave
+            card.addEventListener('mouseleave', () => {
+                gsap.to(inner, { rotateX: 0, rotateY: 0, duration: 1, ease: "elastic.out(1, 0.3)" });
+                gsap.to(img, { x: 0, y: 0, scale: 1.1, duration: 1, ease: "elastic.out(1, 0.3)" });
             });
         });
 
-        // Progress Bar
-        gsap.to("#progress-inner", {
-            height: "100%", ease: "none",
-            scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: 0.1 }
+        // Hero Mouse Parallax (Moves the text slightly)
+        const heroText = document.getElementById('hero-text');
+        window.addEventListener('mousemove', (e) => {
+            const x = (e.clientX / window.innerWidth - 0.5) * 40;
+            const y = (e.clientY / window.innerHeight - 0.5) * 40;
+            gsap.to(heroText, { x: x, y: y, duration: 1, ease: "power2.out" });
         });
 
-        // The Master 3D Timeline
-        const masterTl = gsap.timeline({
-            scrollTrigger: {
-                trigger: "#catalog",
-                start: "top bottom",
-                end: "bottom bottom",
-                scrub: 1
-            }
+
+        // --- 5. SMOOTH SCROLLING & SCROLL ANIMATIONS ---
+        
+        // Init Lenis Smooth Scroll
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), // standard easing
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
         });
 
-        // Initial setup for hero exit
-        carRig.position.set(0, 0, -10);
-        carGroup.rotation.set(0.5, 0, 0);
-
-        const step = 1 / categoriesData.length;
-
-        // MATCHMEDIA: This fixes the overlap perfectly based on device size
-        let mm = gsap.matchMedia();
-
-        mm.add({
-            // Desktop
-            isDesktop: "(min-width: 1025px)",
-            // Mobile/Tablet
-            isMobile: "(max-width: 1024px)"
-        }, (context) => {
-            let { isDesktop, isMobile } = context.conditions;
-
-            categoriesData.forEach((cat, i) => {
-                const isEven = i % 2 === 0;
-                
-                // DYNAMIC X OFFSET:
-                // Desktop: Push far left/right based on aspect ratio to avoid card.
-                // Mobile: Keep strictly centered (0), card is pushed to bottom via CSS.
-                const aspect = window.innerWidth / window.innerHeight;
-                let targetX = 0;
-                
-                if (isDesktop) {
-                    // Push to the opposite side of the text card.
-                    // Multiplying by aspect ratio ensures ultra-wide monitors push it far enough.
-                    const baseOffset = 3.5; 
-                    targetX = isEven ? -(baseOffset * aspect) : (baseOffset * aspect);
-                }
-
-                // Dramatic rotation
-                const targetRotY = isEven ? Math.PI * 0.8 : Math.PI * 1.2; 
-                
-                const segmentTl = gsap.timeline();
-
-                // 1. Move & Spin
-                segmentTl.to(carRig.position, { 
-                    x: targetX, 
-                    // On mobile, push the car slightly up on the Y axis to make room for text below
-                    y: isMobile ? 2 : Math.sin(i) * 0.5, 
-                    z: isMobile ? -2 : 3, // Keep slightly further back on mobile
-                    ease: "power1.inOut" 
-                }, 0);
-
-                segmentTl.to(carGroup.rotation, { 
-                    y: targetRotY + (i * Math.PI), 
-                    x: 0.2,
-                    ease: "power1.inOut" 
-                }, 0);
-
-                // 2. Morph Geometry
-                segmentTl.to(mainBody.scale, { x: cat.geom.length, z: cat.geom.width, ease: "power2.inOut" }, 0);
-                segmentTl.to(cabin.scale, { x: cat.geom.length, z: cat.geom.width, ease: "power2.inOut" }, 0);
-                segmentTl.to(spoiler.scale, { x: cat.geom.width, ease: "power2.inOut" }, 0);
-                segmentTl.to(spoiler.position, { y: cat.geom.spoilerY, x: 2 * cat.geom.length, ease: "power2.inOut" }, 0);
-                
-                wheels.forEach((w, wIdx) => {
-                    const base = baseWheelPositions[wIdx];
-                    segmentTl.to(w.scale, { x: cat.geom.wheelScale, y: cat.geom.wheelScale, z: cat.geom.wheelScale, ease: "power2.inOut" }, 0);
-                    segmentTl.to(w.position, { x: base[0] * cat.geom.length, z: base[2] * cat.geom.width, ease: "power2.inOut" }, 0);
-                });
-
-                // 3. Morph Color
-                segmentTl.to(coreMat.color, { 
-                    r: new THREE.Color(cat.color).r, 
-                    g: new THREE.Color(cat.color).g, 
-                    b: new THREE.Color(cat.color).b, 
-                    ease: "none" 
-                }, 0);
-                
-                // Update Nav ID
-                ScrollTrigger.create({
-                    trigger: `#section-${cat.id}`,
-                    start: "top center",
-                    end: "bottom center",
-                    onEnter: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`,
-                    onEnterBack: () => document.getElementById('active-id').innerText = `SERIES: ${cat.id}`
-                });
-
-                masterTl.add(segmentTl, i * step);
-            });
-
-            // Final zoom out on the footer
-            masterTl.to(carRig.position, { z: -10, x: 0, y: 0, duration: step }, "-=0");
-            masterTl.to(carGroup.rotation, { y: "+=3.14", x: 0.5, duration: step }, "-=" + step);
-
-        });
-
-        // --- 5. RENDER LOOP ---
-        function animate() {
-            requestAnimationFrame(animate);
-            const time = Date.now() * 0.001;
-            
-            carRig.position.y += Math.sin(time * 2) * 0.002;
-            wheels.forEach(w => w.rotation.z -= 0.05);
-            coreMat.opacity = 0.6 + Math.sin(time * 5) * 0.4;
-
-            renderer.render(scene, camera);
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
         }
-        animate();
+        requestAnimationFrame(raf);
 
-        // --- 6. WINDOW RESIZE ---
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            // ScrollTrigger refresh is handled automatically by GSAP matchMedia
+        // Sync GSAP ScrollTrigger with Lenis
+        gsap.registerPlugin(ScrollTrigger);
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => { lenis.raf(time * 1000); });
+        gsap.ticker.lagSmoothing(0);
+
+        // Scroll Enter Animations for Cards
+        const carRows = document.querySelectorAll('.car-card');
+        carRows.forEach(row => {
+            gsap.fromTo(row, 
+                { opacity: 0, y: 100 },
+                {
+                    opacity: 1,
+                    y: 0,
+                    duration: 1.2,
+                    ease: "power3.out",
+                    scrollTrigger: {
+                        trigger: row,
+                        start: "top 85%", // Triggers when top of card hits 85% down the viewport
+                        toggleActions: "play none none reverse"
+                    }
+                }
+            );
         });
+
+        // Initial Hero Fade In
+        gsap.fromTo(".hero h1", { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 1.5, ease: "power3.out" });
+
     </script>
 </body>
 </html>
